@@ -1,36 +1,41 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import MyComponent, { MyComponentWithoutJsx } from "./components/MyComponent";
+import { useState } from "react";
+import WeatherForecast from "./components/WeatherForecast";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [selectedCity, updateSelectedCity] = useState<string | null>(null);
+
+  const handleOnForecastCityClicked = (city: string) => {
+    updateSelectedCity(city);
+  };
 
   return (
     <>
-      <div>
-        <MyComponent />
-        <MyComponentWithoutJsx />
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <h1>Starship Web Dev Workshop</h1>
+      <h3>Selected city: {selectedCity}</h3>
+      <div className="forecasts-container">
+        <WeatherForecast
+          city="London"
+          temperature={10}
+          description="Rainy"
+          icon="🌧"
+          onClick={handleOnForecastCityClicked}
+        />
+        <WeatherForecast
+          city="Helsinki"
+          temperature={-12}
+          description="Cloudy"
+          icon="🌥"
+          onClick={handleOnForecastCityClicked}
+        />
+        <WeatherForecast
+          city="Melbourne"
+          temperature={22}
+          description="Sunny"
+          icon="☀️"
+          onClick={handleOnForecastCityClicked}
+        />
       </div>
-      <h1>Vite + React </h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   );
 }

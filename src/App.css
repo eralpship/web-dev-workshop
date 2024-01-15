@@ -40,3 +40,11 @@
 .read-the-docs {
   color: #888;
 }
+
+.forecasts-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1em;
+  font-size: 0.5em;
+}
