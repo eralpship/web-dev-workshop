@@ -292,7 +292,7 @@ Now `App` parent component is given callback functions as props and it is expect
 
 in **src/components/WeatherForecast.tsx** we replace the console log with prop function call. We pass the city as a parameter so `App` knows which city was clicked;
 
-```
+```diff
 ...
  export default function WeatherForecast(props: WeatherForecastProps) {
    const handleOnClick = () => {
