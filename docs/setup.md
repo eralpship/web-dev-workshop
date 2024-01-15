@@ -2,6 +2,8 @@
 
 I prepared a development docker container so you don't have to waste time installing the right nodejs version. I recommend working inside the container for this workshop. However it is optional. If you feel confident with installing nodejs, check the required node version in `.nvmrc` file. Skip to Install Dependencies secion and run the command directly on your local setup. 
 
+## Build & run docker container
+
 - Start docker desktop if it is not running already
 
 - Build the development image on your local machine
@@ -24,13 +26,13 @@ Access docker container's shell
 docker exec -it vite_docker sh
 ```
 
-- Install dependencies 
+## Install dependencies 
 ```sh
 # Run this in docker container's shell
 npm i 
 ```
 
-- Run the development server
+## Run the development server
 ```sh
 # Run this in docker container's shell
 npm run dev
@@ -42,7 +44,16 @@ You should see this page:
 
 ![start page|20%](assets/start-page.png)
 
-- Check if hot reload / hot module replacing (HMR) works. try editing the file `src/App.tsx` ie:
+## Install prettier editor extension
+
+Prettier helps us format the code automatically. 
+If you are using vscode, when you open the project it will prompt you to install it. Otherwise install extension [esbenp.prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) manually.
+
+If you are not using vscode then install equivalent prettier extension to your editor. Or continue without installing, automatic formatting is optional so feel free to ignore it.
+
+## Check if hot reload / hot module replacing (HMR) works. 
+
+try editing the file `src/App.tsx` ie:
 ```diff
 - <h1>Vite + React</h1>
 + <h1>Starship</h1>
