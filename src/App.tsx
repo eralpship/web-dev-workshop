@@ -1,53 +1,14 @@
 import "./App.css";
-import { useState } from "react";
-import WeatherForecast from "./components/WeatherForecast";
-import useWeatherConditions from "./hooks/useWeatherConditions";
+import CityWeatherContainer from "./components/CityWeatherContainer";
 
 function App() {
-  const [selectedCity, updateSelectedCity] = useState<string | null>(null);
-  const helsinkiWeather = useWeatherConditions("helsinki");
-  const londonWeather = useWeatherConditions("london");
-  const melbourneWeather = useWeatherConditions("melbourne");
-
-  const handleOnForecastCityClicked = (city: string) => {
-    if (city.toLowerCase() === "helsinki") {
-      helsinkiWeather.reload();
-    }
-    if (city.toLowerCase() === "london") {
-      londonWeather.reload();
-    }
-    if (city.toLowerCase() === "melbourne") {
-      melbourneWeather.reload();
-    }
-    updateSelectedCity(city);
-  };
-
   return (
     <>
       <h1>Starship Web Dev Workshop</h1>
-      <h3>Selected city: {selectedCity}</h3>
       <div className="forecasts-container">
-        <WeatherForecast
-          city="London"
-          temperature={londonWeather.temperature}
-          description={londonWeather.weatherText}
-          icon={londonWeather.weatherIcon}
-          onClick={handleOnForecastCityClicked}
-        />
-        <WeatherForecast
-          city="Helsinki"
-          temperature={helsinkiWeather.temperature}
-          description={helsinkiWeather.weatherText}
-          icon={helsinkiWeather.weatherIcon}
-          onClick={handleOnForecastCityClicked}
-        />
-        <WeatherForecast
-          city="Melbourne"
-          temperature={melbourneWeather.temperature}
-          description={melbourneWeather.weatherText}
-          icon={melbourneWeather.weatherIcon}
-          onClick={handleOnForecastCityClicked}
-        />
+        <CityWeatherContainer city="London" />
+        <CityWeatherContainer city="Helsinki" />
+        <CityWeatherContainer city="Melbourne" />
       </div>
     </>
   );
