@@ -177,6 +177,8 @@ Start by making a function in a new file called `use` `src/hooks/useWeatherCondi
 
 and move the weather data state from `WeatherConditions.tsx` into `useWeatherConditions.ts`
 
+**useWeatherConditions.ts**
+
 ```tsx
 import { useState } from "react";
 
@@ -201,6 +203,8 @@ export default function useWeatherConditions(city: string) {
 ```
 
 Also we need to move the code that fetches the API to here as well. Take the code from inside `handleOnClick` callback of `WeatherForecast` component into `reload` callback of `useWeatherConditions`
+
+**useWeatherConditions.ts**
 
 ```diff
  const reload = async () => {
@@ -228,6 +232,8 @@ Also we need to move the code that fetches the API to here as well. Take the cod
 ```
 
 We now need to generalize & reuse this api call code for different cities. In order to do that let's use the `city` parameter we get from our new `useWeatherConditions` function instead of the hardcoded `tallinn` string in the code.
+
+**useWeatherConditions.ts**
 
 ```diff
  const reload = async () => {
@@ -285,7 +291,11 @@ export default function WeatherForecast(props: WeatherForecastProps) {
 }
 ```
 
-Let's go to `App.tsx` and implement our `useWeatherConditions` function so that we provide data into `WeatherForecast` components from there.
+These kind of utility functions like `useWeatherConditions` have a special name in react. They are called `hook`s. Similar to the `useState` one we used before. There's a naming convention for hooks, they should start with the word `use`.. in the beginning. Otherwise they are plain normal functions. Only thing that is different from components is that they produce data instead of layout. They both are used to reuse code. Components are for reusing and composing layout, hooks are for reusing and composing data.
+
+## Implementing hooks
+
+Let's go to `App.tsx` and implement our new `useWeatherConditions` hook (function) so that we provide data into `WeatherForecast` components from there.
 
 - We import `useWeatherConditions.ts` into `App.tsx`
 - call the `useWeatherConditions` function with `Helsinki` city parameter.
