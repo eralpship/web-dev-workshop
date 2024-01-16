@@ -2,6 +2,8 @@
 
 Let's make our web app actually useful by fetching some live data
 
+## Accuweather API
+
 We will use accuweather's API to search for a city, then get its current weather conditions.
 
 - get your api key from here https://developer.accuweather.com/
@@ -48,6 +50,8 @@ We will need the values for the `WeatherText` and `WeatherIcon`. Also the temper
 ```bash
 ... "Temperature":{"Metric":{"Value":-11.1,"Unit":"C","UnitType":17}, ...
 ```
+
+## Using browser fetch API
 
 Let's put all of this into our react web app. Open `WeatherForecast.tsx` and change the `handleOnClick` handler.
 We need to add `async` before the function definition so that we can use `await` keyword. Async-Await is a concept in javascript which allows us to wait for things to happen. Here we will wait for our api call to respond.
