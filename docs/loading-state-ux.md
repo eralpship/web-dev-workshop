@@ -78,6 +78,8 @@ export default function CityWeatherContainer({
 
 now we can delete a lot of code. and reuse the new `CityWeatherContainer` we created instead. It composes all the functionality we are deleteting from `App.tsx` already per each city.
 
+Let's implement our new component `CityWeatherContainer` for each city and delete all the code we won't use anymore.
+
 src/App.tsx
 
 ```diff
@@ -118,7 +120,7 @@ src/App.tsx
 -           icon={londonWeather.weatherIcon}
 -           onClick={handleOnForecastCityClicked}
 -         />
-          <CityWeatherContainer city="London" />
++         <CityWeatherContainer city="London" />
 -         <WeatherForecast
 -           city="Helsinki"
 -           temperature={helsinkiWeather.temperature}
@@ -126,7 +128,7 @@ src/App.tsx
 -           icon={helsinkiWeather.weatherIcon}
 -           onClick={handleOnForecastCityClicked}
 -         />
-          <CityWeatherContainer city="Helsinki" />
++         <CityWeatherContainer city="Helsinki" />
 -         <WeatherForecast
 -           city="Melbourne"
 -           temperature={melbourneWeather.temperature}
@@ -134,7 +136,7 @@ src/App.tsx
 -           icon={melbourneWeather.weatherIcon}
 -           onClick={handleOnForecastCityClicked}
 -         />
-          <CityWeatherContainer city="Melbourne" />
++         <CityWeatherContainer city="Melbourne" />
         </div>
       </>
     );
