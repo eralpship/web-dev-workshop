@@ -51,6 +51,8 @@ We will need the values for the `WeatherText` and `WeatherIcon`. Also the temper
 ... "Temperature":{"Metric":{"Value":-11.1,"Unit":"C","UnitType":17}, ...
 ```
 
+With accuweather's free api access only allows **50** API calls per day. If your api calls start returning api limit error. You can go to [accuweather developer console](https://developer.accuweather.com/user/me/apps) and delete your app. Create a new app to get a new API key. Update your code with this new API key.
+
 ## Using browser fetch API
 
 Let's put all of this into our react web app. Open `WeatherForecast.tsx` and change the `handleOnClick` handler.
