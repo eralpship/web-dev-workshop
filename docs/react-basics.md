@@ -207,6 +207,8 @@ _    <div>
 Now we should see that they got smaller and displayed next to each other.
 Notice that we didn't modify the font sizes in the classes of `WeatherForecast.css` yet they got smaller because we gave containing `forecasts-container` the font-size of `0.5em`. This is the expected behavior of css because `em` and values are relative to their containers. If we set particular `px` (pixel) values this wouldn't happen.
 
+This is an anti-pattern though. Wanted to show you what happens if you that it has an effect if you set a font-size to a parent element. If the children have relative sizes. We normally don't do this. It achieved the look we wanted in this case but soon later we will do re-do this more properly.
+
 ![horizontal](assets/static-forecasts-horizontal.png)
 
 ### Sending in callbacks
