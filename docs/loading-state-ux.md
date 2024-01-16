@@ -360,9 +360,11 @@ You can go to `localhost:8000` and reload. You should see the city forecasts loa
 API calls won't happen as we expected though. When you refresh the page then if you look at browser's network tab of developer console.
 You'll see more than 6 api calls made. 12 to be exact. Let's see why is that.
 
+[dupe api calls](assets/dupe-api-calls.png)
+
 We were expecting only 6 because. We search 3 cities to get their city keys. Then we fetch the current weather conditions with the keys we acquired per each 3 city. So that should add up to 6.
 
-But we see 12 api calls. The cause of this is React's strict mode.
+But we see 12 api calls. The cause of this is [React's strict mode](https://react.dev/reference/react/StrictMode).
 
 If you check `main.tsx` file, you'll see. `<App />` is wrapped with `<React.StrictMode>`.
 Removing them would disable the strict mode.
