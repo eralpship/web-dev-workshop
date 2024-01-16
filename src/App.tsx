@@ -10,9 +10,15 @@ function App() {
   const melbourneWeather = useWeatherConditions("melbourne");
 
   const handleOnForecastCityClicked = (city: string) => {
-    helsinkiWeather.reload();
-    londonWeather.reload();
-    melbourneWeather.reload();
+    if (city.toLowerCase() === "helsinki") {
+      helsinkiWeather.reload();
+    }
+    if (city.toLowerCase() === "london") {
+      londonWeather.reload();
+    }
+    if (city.toLowerCase() === "melbourne") {
+      melbourneWeather.reload();
+    }
     updateSelectedCity(city);
   };
 

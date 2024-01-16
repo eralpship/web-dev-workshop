@@ -328,6 +328,8 @@ Let's go to `App.tsx` and implement our `useWeatherConditions` function so that 
           <WeatherForecast
 ```
 
+You might see red squiggly lines indicating type errors where we changed code. This is because props of `WeatherForecast` is not expecting `null` and it is only expecting strings. Our app will work fine, you can ignore it for now. But we must fix this at some point. We will handle it properly and show a loading indicator state soon in the next phase.
+
 Now when you go to `localhost:8000` you'll see that only Helsinki component is missing values. When you click on it, after a little while it should show the live weather conditions.
 
 ![helsinki init](assets/helsinki-click-initial.png)
@@ -383,6 +385,31 @@ function App() {
   );
 }
 ```
+
+Open `localhost:8000` then click on any city. All of the cities should load and show weather conditions.
+
+![all cities loaded](assets/all-cities-loaded-together.png)
+
+The reason why all of them loaded even though we clicked one is that all the `onClick` callbacks of all the cities are handled by single `handleOnForecastCityClicked` handler function. And `reload()` calls of helsinki, london and melbourne are fired all at once.
+
+We will fix it properly later but for now as a temporary fix we can only trigger loading of the clicked city.
+
+```diff
+  const handleOnForecastCityClicked = (city: string) => {
++   if (city.toLowerCase() === "helsinki") {
+      helsinkiWeather.reload();
++   }
++   if (city.toLowerCase() === "london") {
+      londonWeather.reload();
++   }
++   if (city.toLowerCase() === "melbourne") {
+      melbourneWeather.reload();
++   }
+    updateSelectedCity(city);
+  };
+```
+
+We check which city was clicked from the `city` parameter `handleOnForecastCityClicked`. `toLowerCase` is needed because city titles come from are capitalized as `Helsinki` so `helsinki` would not match otherwise.
 
 ## Waiting for things
 
