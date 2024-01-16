@@ -367,5 +367,3 @@ Let's implement this in `App.tsx`
 Now when we open `localhost:8000` and click on the cities we should see that value next to "Selected city" changes
 
 https://github.com/eralpship/web-dev-workshop/assets/106536625/b9fc6dc2-d745-4527-b8e4-6b6943175322
-
-
