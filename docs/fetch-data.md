@@ -415,8 +415,6 @@ We will fix it properly later but for now as a temporary fix we can only trigger
 
 We check which city was clicked from the `city` parameter `handleOnForecastCityClicked`. `toLowerCase` is needed because city titles come from are capitalized as `Helsinki` so `helsinki` would not match otherwise.
 
-## Waiting for things
+Now when you try clicking individual cities you should see that only that one gets loaded.
 
-### Showing the loading state
-
-### Using suspense
+https://github.com/eralpship/web-dev-workshop/assets/106536625/a06ac305-dc7c-4c99-a2f7-7e22cc698d62
