@@ -1,7 +1,8 @@
-import useWeatherConditions from "../hooks/useWeatherConditions";
+import { Suspense } from "react";
 import WeatherForecast from "./WeatherForecast";
-import WeatherForecastError from "./WeatherForecastError";
 import WeatherForecastLoading from "./WeatherForecastLoading";
+import { ErrorBoundary } from "react-error-boundary";
+import WeatherForecastError from "./WeatherForecastError";
 
 type CityWeatherContainerProps = {
   city: string;
@@ -10,24 +11,15 @@ type CityWeatherContainerProps = {
 export default function CityWeatherContainer({
   city,
 }: CityWeatherContainerProps) {
-  const { reload, weatherIcon, weatherText, temperature, loading, error } =
-    useWeatherConditions(city);
-
-  if (error) {
-    return <WeatherForecastError message={error.message} />;
-  }
-
-  if (loading) {
-    return <WeatherForecastLoading />;
-  }
-
   return (
-    <WeatherForecast
-      city={city}
-      temperature={temperature}
-      description={weatherText}
-      icon={weatherIcon}
-      onClick={reload}
-    />
+    <ErrorBoundary
+      fallbackRender={({ error }) => (
+        <WeatherForecastError message={error.message} />
+      )}
+    >
+      <Suspense fallback={<WeatherForecastLoading />}>
+        <WeatherForecast city={city} />
+      </Suspense>
+    </ErrorBoundary>
   );
 }

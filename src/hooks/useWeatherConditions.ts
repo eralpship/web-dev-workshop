@@ -1,8 +1,8 @@
 import * as WeatherApi from "../services/weather";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function useWeatherConditions(city: string) {
-  const citySearchQuery = useQuery({
+  const citySearchQuery = useSuspenseQuery({
     queryKey: ["search-city", city],
     queryFn: () => WeatherApi.searchCity(city),
   });
@@ -10,10 +10,14 @@ export default function useWeatherConditions(city: string) {
   const citySearchData = citySearchQuery.data;
   const cityKey = citySearchData?.[0]?.Key;
 
-  const weatherConditionsQuery = useQuery({
+  const weatherConditionsQuery = useSuspenseQuery({
     queryKey: ["weather-conditions", cityKey],
-    queryFn: () => WeatherApi.getWeatherConditions(cityKey),
-    enabled: Boolean(cityKey),
+    queryFn: () => {
+      if (!cityKey) {
+        return null;
+      }
+      return WeatherApi.getWeatherConditions(cityKey);
+    },
   });
 
   const weatherConditionsData = weatherConditionsQuery.data;
@@ -21,19 +25,9 @@ export default function useWeatherConditions(city: string) {
   const weatherIcon = weatherConditionsData?.[0]?.WeatherIcon;
   const temperature = weatherConditionsData?.[0]?.Temperature?.Metric?.Value;
 
-  const reload = () => {
-    citySearchQuery.refetch();
-    weatherConditionsQuery.refetch();
-  };
-  const loading = citySearchQuery.isLoading || weatherConditionsQuery.isLoading;
-  const error = citySearchQuery.error || weatherConditionsQuery.error;
-
   return {
     weatherText,
     weatherIcon,
     temperature,
-    loading,
-    error,
-    reload,
   };
 }

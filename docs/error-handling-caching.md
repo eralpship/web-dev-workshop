@@ -315,3 +315,265 @@ Also if you open developer console of your browser and refresh the page. You sho
 `react-query` is aware of React strict mode's behavior. Also deduplicates queries happen too soon back to back to avoid excessive calls.
 
 ![dedupe](assets/query-dedupe.png)
+
+## Suspense and Error boundaries
+
+We deleted a lot of code from `useWeatherConditions` hook. I think we can delete even more.
+
+We will use react's one of the newest features called "Suspense". [React Suspense](https://react.dev/reference/react/Suspense) allows us to track automatically if an underlying component is busy with some asynchronous task. Which is perfect for our case which is data fetching.
+
+This will allow us to stop passing around loading and error state information around and have it automatically handled from parent component `CityWeatherContainer` of its child `WeatherForecast`.
+
+`react-query` is also compatible with Suspense. So we can easily turn our `useQuery` calls into `useSuspenseQuery` calls.
+
+let's start changing from `useWeatherConditions.ts`
+
+**src/hooks/useWeatherConditions.ts**
+```diff
+  import * as WeatherApi from "../services/weather";
+- import { useQuery } from "@tanstack/react-query";
++ import { useSuspenseQuery } from "@tanstack/react-query";
+ 
+  export default function useWeatherConditions(city: string) {
+-   const citySearchQuery = useQuery({
++   const citySearchQuery = useSuspenseQuery({
+      queryKey: ["search-city", city],
+      queryFn: () => WeatherApi.searchCity(city),
+    });
+    const citySearchData = citySearchQuery.data;
+    const cityKey = citySearchData?.[0]?.Key;
+ 
+-   const weatherConditionsQuery = useQuery({
++   const weatherConditionsQuery = useSuspenseQuery({
+      queryKey: ["weather-conditions", cityKey],
+-     queryFn: () => WeatherApi.getWeatherConditions(cityKey),
+-     enabled: Boolean(cityKey),
++     queryFn: () => {
++       if (!cityKey) {
++         return null;
++       }
++       return WeatherApi.getWeatherConditions(cityKey);
++     },
+    });
+ 
+    const weatherConditionsData = weatherConditionsQuery.data;
+    const weatherIcon = weatherConditionsData?.[0]?.WeatherIcon;
+    const temperature = weatherConditionsData?.[0]?.Temperature?.Metric?.Value;
+ 
+-   const reload = () => {
+-     citySearchQuery.refetch();
+-     weatherConditionsQuery.refetch();
+-   };
+-   const loading = citySearchQuery.isLoading || weatherConditionsQuery.isLoading;
+-   const error = citySearchQuery.error || weatherConditionsQuery.error;
+-
+    return {
+      weatherText,
+      weatherIcon,
+      temperature,
+-     loading,
+-     error,
+-     reload,
+    };
+  }
+```
+
+so we will end up with;
+**src/hooks/useWeatherConditions.ts**
+
+```tsx
+import * as WeatherApi from "../services/weather";
+import { useSuspenseQuery } from "@tanstack/react-query";
+
+export default function useWeatherConditions(city: string) {
+  const citySearchQuery = useSuspenseQuery({
+    queryKey: ["search-city", city],
+    queryFn: () => WeatherApi.searchCity(city),
+  });
+
+  const citySearchData = citySearchQuery.data;
+  const cityKey = citySearchData?.[0]?.Key;
+
+  const weatherConditionsQuery = useSuspenseQuery({
+    queryKey: ["weather-conditions", cityKey],
+    queryFn: () => {
+      if (!cityKey) {
+        return null;
+      }
+      return WeatherApi.getWeatherConditions(cityKey);
+    },
+  });
+
+  const weatherConditionsData = weatherConditionsQuery.data;
+  const weatherText = weatherConditionsData?.[0]?.WeatherText;
+  const weatherIcon = weatherConditionsData?.[0]?.WeatherIcon;
+  const temperature = weatherConditionsData?.[0]?.Temperature?.Metric?.Value;
+
+  return {
+    weatherText,
+    weatherIcon,
+    temperature,
+  };
+}
+```
+
+Let's move `useWeatherConditions` hook into `WeatherForecast` and remove the unused `onClick` handler. It will not need `temperature` and other props neither because we can now get them from the query response so let's remove them.
+
+**src/components/WeatherForecastProps.tsx**
+
+```diff
++import useWeatherConditions from "../hooks/useWeatherConditions";
+ import "./WeatherForecast.css";
+ 
+ type WeatherForecastProps = {
+   city: string;
+-  temperature: number | null;
+-  description: string | null;
+-  icon: string | null;
+-  onClick: (city: string) => void;
+ };
+ 
+ export default function WeatherForecast(props: WeatherForecastProps) {
+-  const handleOnClick = () => {
+-    props.onClick(props.city);
+-  };
++  const { weatherIcon, weatherText, temperature } = useWeatherConditions(
++    props.city
++  );
++
+   return (
+-    <div className="weather-forecast" onClick={handleOnClick}>
++    <div className="weather-forecast">
+       <div className="weather-forecast-title">Weather in {props.city}</div>
+-      <div className="weather-forecast-icon">{props.icon ?? "️🤷‍♀️"}</div>
++      <div className="weather-forecast-icon">{weatherIcon ?? "️🤷‍♀️"}</div>
+       <div className="weather-forecast-value">
+-        {props.temperature ?? "🤔"}°C {props.description ?? "🤷‍♂️"}
++        {temperature ?? "🤔"}°C {weatherText ?? "🤷‍♂️"}
+       </div>
+     </div>
+   );
+```
+
+So resulting `WeatherForecastProps` will be;
+
+**src/components/WeatherForecastProps.tsx**
+```tsx
+import useWeatherConditions from "../hooks/useWeatherConditions";
+import "./WeatherForecast.css";
+
+type WeatherForecastProps = {
+  city: string;
+};
+
+export default function WeatherForecast(props: WeatherForecastProps) {
+  const { weatherIcon, weatherText, temperature } = useWeatherConditions(
+    props.city
+  );
+
+  return (
+    <div className="weather-forecast">
+      <div className="weather-forecast-title">Weather in {props.city}</div>
+      <div className="weather-forecast-icon">{weatherIcon ?? "️🤷‍♀️"}</div>
+      <div className="weather-forecast-value">
+        {temperature ?? "🤔"}°C {weatherText ?? "🤷‍♂️"}
+      </div>
+    </div>
+  );
+}
+```
+
+Finally we need to modify `CityWeatherContainer` to implement `Suspense` and `ErrorBoundaries`.
+
+First install `react-error-boundaries` module so we can use a reusable error boundary. Otherwise we'd need to do a [custom boundary implementation](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary). Which is not too difficult but `react-error-boundaries` module handles more edge cases and more reusable, allows custom fallback ui as well.
+
+Run this in your terminal. and remember to restart the vite dev server after
+
+```bash
+npm i react-error-boundary
+```
+
+now we can add it to `CityWeatherContainer`
+
+**src/components/CityWeatherContainer**
+
+```diff
+-import useWeatherConditions from "../hooks/useWeatherConditions";
++import { Suspense } from "react";
+ import WeatherForecast from "./WeatherForecast";
+-import WeatherForecastError from "./WeatherForecastError";
+ import WeatherForecastLoading from "./WeatherForecastLoading";
++import { ErrorBoundary } from "react-error-boundary";
++import WeatherForecastError from "./WeatherForecastError";
+ 
+ type CityWeatherContainerProps = {
+   city: string;
+@@ -10,24 +11,15 @@ type CityWeatherContainerProps = {
+ export default function CityWeatherContainer({
+   city,
+ }: CityWeatherContainerProps) {
+-  const { reload, weatherIcon, weatherText, temperature, loading, error } =
+-    useWeatherConditions(city);
+-
+-  if (error) {
+-    return <WeatherForecastError message={error.message} />;
+-  }
+-
+-  if (loading) {
+-    return <WeatherForecastLoading />;
+-  }
+-
+   return (
+-    <WeatherForecast
+-      city={city}
+-      temperature={temperature}
+-      description={weatherText}
+-      icon={weatherIcon}
+-      onClick={reload}
+-    />
++    <ErrorBoundary
++      fallbackRender={({ error }) => (
++        <WeatherForecastError message={error.message} />
++      )}
++    >
++      <Suspense fallback={<WeatherForecastLoading />}>
++        <WeatherForecast city={city} />
++      </Suspense>
++    </ErrorBoundary>
+   );
+ }
+```
+
+so it will much more concise like this;
+
+**src/components/CityWeatherContainer**
+
+```tsx
+import { Suspense } from "react";
+import WeatherForecast from "./WeatherForecast";
+import WeatherForecastLoading from "./WeatherForecastLoading";
+import { ErrorBoundary } from "react-error-boundary";
+import WeatherForecastError from "./WeatherForecastError";
+
+type CityWeatherContainerProps = {
+  city: string;
+};
+
+export default function CityWeatherContainer({
+  city,
+}: CityWeatherContainerProps) {
+  return (
+    <ErrorBoundary
+      fallbackRender={({ error }) => (
+        <WeatherForecastError message={error.message} />
+      )}
+    >
+      <Suspense fallback={<WeatherForecastLoading />}>
+        <WeatherForecast city={city} />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+```
+
+After these changes our web app should work just as before but with much less code. You can try to change one of the city names to trigger an error.
