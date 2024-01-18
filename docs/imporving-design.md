@@ -82,9 +82,9 @@ Let's start by deleting all the `.css` files!
 We won't need any of them because we will implement styles using MUI's theme system using a concept called **css-in-js** basically means writing styles in typescript alongside our react components.
 
 delete these files;
-- src/App.css
-- src/index.css
-- src/WeatherForecast.css
+- **src/App.css**
+- **src/index.css**
+- **src/WeatherForecast.css**
 
 We will re-implement styles of weather components again using MUI components soon.
 
