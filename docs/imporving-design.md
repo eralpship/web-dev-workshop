@@ -10,6 +10,8 @@ We will implement the [material ui](https://mui.com/material-ui/getting-started/
 MUI gives us good looking basic pre designed components that we can build our ui's blocks they provide.
 It has a layout system, many kinds of buttons and containers, tables and much more.
 
+You can refer to this [All MUI Components page](https://mui.com/material-ui/all-components/) for choosing components to use.
+
 We use this extensively in Starship operations services tools like Hype Panel. And partially in Ground Control App as well. (Material ui is implemented in React Native through [Paper ui library](https://reactnativepaper.com/))
 
 To begin, install the npm modules
@@ -75,8 +77,6 @@ You should see a button above the title. If you don't see, then something might 
 ![mui button test](assets/mui-button-test.png)
 
 Let's roll the changes above back. We won't need this button here.
-
-You can refer to this [All MUI Components page](https://mui.com/material-ui/all-components/) for choosing components to use.
 
 Let's start by deleting all the `.css` files! 
 We won't need any of them because we will implement styles using MUI's theme system using a concept called **css-in-js** basically means writing styles in typescript alongside our react components.
@@ -237,3 +237,7 @@ Try changing your OS theme preference to see if browser live updates the colorsc
 ### Dark mode
 
 ![baseline dark mode](assets/baseline-dark-mode.png)
+
+## Implementing MUI components & styles
+
+Now that MUI is setup. We can start fixing the weather components we broke by deleting the `.css` files.
