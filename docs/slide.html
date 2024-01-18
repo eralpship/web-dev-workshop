@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web App Development Day</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+            background-color: #ffcc00;
+            padding: 20px;
+            text-align: center; /* Centering all text */
+        }
+        .center {
+            margin: auto;
+            padding: 20px;
+            border: 3px double #000000;
+        }
+        .blinking {
+            animation: blinker 0.6s linear infinite;
+            color: red;
+            font-size: 3em;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+        marquee {
+            font-size: 2.0em;
+            color: purple;
+        }
+        .subtitle {
+            font-size: 2.0em;
+            color: blue;
+            margin-bottom: 20px;
+        }
+        .subtitle2 {
+            font-size: 2.2em;
+            color: green;
+            margin-bottom: 20px;
+        }
+        ul {
+            font-size: 1.3em;
+            list-style-type: none; /* Removing bullet points */
+            padding: 0;
+            margin: 0 20px; /* Add spacing around the list */
+        }
+        li {
+            margin: 10px 0;
+        }
+        .content {
+            display: flex; /* Use flexbox to layout children */
+            justify-content: center; /* Center children horizontally */
+            align-items: center; /* Center children vertically */
+            text-align: left; /* Align the text to the left */
+        }
+        img {
+            margin: 0 20px; /* Add spacing around the image */
+        }
+    </style>
+</head>
+<body>
+    <marquee behavior="scroll" direction="left" scrollAmount="30">Welcome to the web development day!</marquee>
+    <div class="center">
+        <h1 class="blinking">WEB APP DEVELOPMENT DAY</h1>
+        <div class="subtitle">It's happening next week!</div>
+        <div class="subtitle2">25th of January. In Tallinn or remotely!</div>
+    </div>
+    <marquee behavior="scroll" direction="right" scrollAmount="30">All day fun with the internet things</marquee>
+    <div class="content">
+        <ul style="text-align: right;">
+          <li>Get your docker ready 🐳</li>
+          <li>VSCode editor is recommended but not mandatory</li>
+          <li>Bring your laptop, might be useful</li>
+        </ul>
+        <img src="assets/internet.png" alt="cat" height="200">
+        <ul>
+            <li>Learn how to make a website for your uncle's cat</li>
+            <li>Get hooked on React. What are hooks anyways?</li>
+            <li>Learn to use CSS to flex your Flexbox</li>
+        </ul>
+    </div>
+</body>
+</html>
