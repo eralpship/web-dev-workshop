@@ -1,5 +1,4 @@
 import useWeatherConditions from "../hooks/useWeatherConditions";
-import "./WeatherForecast.css";
 
 type WeatherForecastProps = {
   city: string;
