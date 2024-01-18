@@ -84,7 +84,7 @@ We won't need any of them because we will implement styles using MUI's theme sys
 delete these files;
 - **src/App.css**
 - **src/index.css**
-- **src/WeatherForecast.css**
+- **src/components/WeatherForecast.css**
 
 We will re-implement styles of weather components again using MUI components soon.
 
