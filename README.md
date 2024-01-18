@@ -6,3 +6,4 @@
 - [Fetching live data](docs/fetch-data.md)
 - [Loading state & ux improvements](docs/loading-state-ux.md)
 - [Error handling and caching](docs/error-handling-caching.md)
+- [Improving design](docs/improving-design.md)
