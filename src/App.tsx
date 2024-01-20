@@ -13,7 +13,20 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <PageLayout>
-        <Box sx={{ display: "flex", gap: 1, padding: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            padding: 2,
+            flexDirection: {
+              xs: "column",
+              sm: "column",
+              md: "row",
+              lg: "row",
+              xl: "row",
+            },
+          }}
+        >
           <CityWeatherContainer city="London" />
           <CityWeatherContainer city="Helsinki" />
           <CityWeatherContainer city="Melbourne" />

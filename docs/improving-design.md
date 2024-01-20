@@ -92,7 +92,7 @@ We need to remove all references to these css files otherwise our app won't buil
 
 in `WeatherForecast.tsx`
 ```diff
-- import useWeatherConditions from "../hooks/useWeatherConditions";
+- import "./WeatherForecast.css";
 ```
 
 in `App.tsx`
@@ -433,6 +433,8 @@ Now you can go to `localhost:8000` check how our app looks.
 
 ![thunderstorms](assets/thunder-weather.png)
 
+## Dynamically changing the weather icon
+
 Looks nicer but the thunderstorm icon is hardcoded so we will need to fix that. 
 
 Accuweather sends us icon id's for every weather condition. They have the [index of that here](https://developer.accuweather.com/weather-icons). We need to match them to iconset we get from MUI.
@@ -556,6 +558,174 @@ Let's see this implemented in the `WeatherForecast.tsx`.
   }
 ```
 
-Now that we replaced the hardcoded `ThunderstormOutlinedIcon` we should see the correct weather icons on our app. Go to `localhost:8000` to check the changes. You should see something like this.
+Now that we replaced the hardcoded `ThunderstormOutlinedIcon` we should see the correct weather icons on our app. Go to `localhost:8000` to check the changes. You should see something like this;
 
 ![dynamic weather icons](assets/dynamic-weather-icons.png)
+
+## Update error & loading state styles
+
+Our error and loading states look like this now.
+
+![error loading initial](assets/error-loading-initial.png)
+
+Let's make them look nicer using components from MUI.
+
+To make it easier to work on. I suggest we make the API calls to fail on purpose so that we see errors without making api calls. We will have to remember to delete these changes later.
+
+**src/services/weather.ts**
+
+```diff
+  export async function searchCity(city: string) {
+    try {
++     throw new Error("Test error. Remove this");
+
+      ...
+  }
+  
+  export async function getWeatherConditions(cityKey: string) {
+    try {
++     throw new Error("Test error. Remove this");
+
+      ...
+  }
+```
+
+When you reload `localhost:8000` you should see the forecasts load for 5 seconds then show the error. This delay comes from `react-query`s own timeout. It tries its best to try to fetch data several times then it times out.
+
+Let's work on the loading state first. 
+
+We will base it off the layout of the `WeatherForecast` component. If we use the same font sizes for the skeleton. Then loading state visual element positions should match exactly to the loaded state.
+
+We can use the `Skeleton` component for showing placeholder for text values.
+And `CircularProgress` to display a spinning loading indicator.
+
+**src/components/WeatherForecastLoading.tsx**
+
+```tsx
+import { CircularProgress } from "@mui/material";
+import Skeleton from "@mui/material/Skeleton";
+import Typography from "@mui/material/Typography";
+
+export default function WeatherForecastLoading() {
+  return (
+    <>
+      <Typography variant="h3" component="div">
+        <Skeleton variant="text" width={150} animation="wave" />
+      </Typography>
+      <CircularProgress size="5em" />
+      <Typography variant="h6" component="div" color="text.secondary">
+        <Skeleton variant="text" width={150} animation="wave" />
+      </Typography>
+    </>
+  );
+}
+```
+
+It should look like this;
+
+![Loading state skeleton](assets/loading-state-skeleton.gif)
+
+Notice that it looks like as if text and icon change into an indeterminate versions of themselves.
+
+Then next let's look into the error state.
+
+Also basing it on the same layout and fontSizes from `WeatherForecast` we can rewrite it filling in the error message to secondary title.
+
+```tsx
+import ErrorOutlined from "@mui/icons-material/ErrorOutlined";
+import Typography from "@mui/material/Typography/Typography";
+
+type WeatherForecastErrorProps = {
+  message: string;
+};
+
+export default function WeatherForecastError({
+  message,
+}: WeatherForecastErrorProps) {
+  return (
+    <>
+      <Typography variant="h3" component="div">
+        Error
+      </Typography>
+      <ErrorOutlined sx={{ fontSize: "5em" }} />
+      <Typography variant="h6" component="div" color="text.secondary">
+        {message}
+      </Typography>
+    </>
+  );
+}
+```
+
+Then it should look like this;
+
+![styled error state](assets/styled-error-state.png)
+
+Now that we are done working on the styles. We should revert the changes we made to the `services/weather.ts` so that it can work normally as before.
+
+**src/services/weather.ts**
+
+```diff
+  export async function searchCity(city: string) {
+    try {
+-     throw new Error("Test error. Remove this");
+
+      ...
+  }
+  
+  export async function getWeatherConditions(cityKey: string) {
+    try {
+-     throw new Error("Test error. Remove this");
+
+      ...
+  }
+```
+
+## Responsive layout 
+
+Our page tries to fit weather forecast boxes horizontally even when there's not enough space. This doesn't look right when the horizontal space is narrow. Especially when viewed from a mobile web browser.
+
+It would be better if layout transformed into a vertical list instead of horizontal when horizontal space is below a certain threshold. The concept of having different styles for different screen sizes is known as "Responsive Design".
+
+We can give MUI separate styles by defining `xs`, `sm`, `md`, `lg`, `xl` properties.
+
+- xs: 0px or larger
+- sm: 600px or larger
+- md: 900px or larger
+- lg: 1200px or larger
+- xl: 1536px or larger
+
+Let's implement this to `App.tsx` the container of the `CityWeatherContainer`s.
+
+**src/App.tsx**
+
+```diff
+   return (
+     <QueryClientProvider client={queryClient}>
+       <PageLayout>
+-        <Box sx={{ display: "flex", gap: 1, padding: 2 }}>
++        <Box
++          sx={{
++            display: "flex",
++            gap: 1,
++            padding: 2,
++            flexDirection: {
++              xs: "column",
++              sm: "column",
++              md: "row",
++              lg: "row",
++              xl: "row",
++            },
++          }}
++        >
+           <CityWeatherContainer city="London" />
+           <CityWeatherContainer city="Helsinki" />
+           <CityWeatherContainer city="Melbourne" />
+```
+
+Then let's open `localhost:8000` to check how it works. 
+
+Here I have 2 modes side by side. Left, the mode wide uses `flexDirection: row`, the narrow mode uses `flexDirection: column`.
+
+You should be able to change between modes, when you resize your browser window.
+
+![responsive side by side](assets/responsive-side-by-side.png)
