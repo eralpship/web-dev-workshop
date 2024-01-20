@@ -241,7 +241,6 @@ Let's add some common page elements and styles to wrapping `PageLayout` componen
      <ThemeProvider theme={theme}>
        <CssBaseline />
        <PageHeader />
--      <Outlet />
 +      <Box
 +        sx={{
 +          display: "flex",
@@ -264,7 +263,7 @@ Let's add some common page elements and styles to wrapping `PageLayout` componen
 +            },
 +          }}
 +        >
-+          <Outlet />
+           <Outlet />
 +        </Box>
 +      </Box>
      </ThemeProvider>
@@ -413,3 +412,46 @@ Now when you try at `localhost:8000` pages should look like these.
 ![not found layout](assets/responsive-page-not-found.png)
 
 ## Navigation menu
+
+Let's implement a navigation menu inside the `PageHeader`.
+
+We can easily add this by inserting buttons into the `ToolBar` of the `PageHeader`.
+
+**src/components/PageHeader.tsx**
+
+```diff
+ import AppBar from "@mui/material/AppBar";
+ import Toolbar from "@mui/material/Toolbar";
+ import Typography from "@mui/material/Typography";
++import Box from "@mui/material/Box";
++import Button from "@mui/material/Button";
+ import { Link } from "react-router-dom";
+ 
++const menuItems: { title: string; path: string }[] = [
++  { title: "Home", path: "/" },
++  { title: "Weather", path: "/weather" },
++];
++
+ export default function PageHeader() {
+   return (
+     <AppBar position="static">
+         ...
+           Starship Web Dev Workshop
+         </Typography>
++        <Box>
++          {menuItems.map((item) => (
++            <Button component={Link} to={item.path} key={item.title}>
++              {item.title}
++            </Button>
++          ))}
++        </Box>
+       </Toolbar>
+     </AppBar>
+   );
+```
+
+I defined the menu item `path`s and `title`s in an array above the component instead of the layout. So that it would be easy to add/remove items from the menu later. We then loop over the `menuItems` array by `map` and render each item as `Button`s.
+
+It should look like this. and clicking the buttons on the top right should take user to associated pages.
+
+![init appbar menu](assets/init-appbar-menu.png)
