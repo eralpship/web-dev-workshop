@@ -5,6 +5,7 @@ import "@fontsource/roboto/700.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CityWeatherContainer from "./components/CityWeatherContainer";
 import PageLayout from "./components/PageLayout";
+import Box from "@mui/material/Box";
 
 const queryClient = new QueryClient();
 
@@ -12,11 +13,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <PageLayout>
-        <div className="forecasts-container">
+        <Box sx={{ display: "flex", gap: 1, padding: 2 }}>
           <CityWeatherContainer city="London" />
           <CityWeatherContainer city="Helsinki" />
           <CityWeatherContainer city="Melbourne" />
-        </div>
+        </Box>
       </PageLayout>
     </QueryClientProvider>
   );

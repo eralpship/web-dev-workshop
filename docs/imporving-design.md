@@ -241,3 +241,321 @@ Try changing your OS theme preference to see if browser live updates the colorsc
 ## Implementing MUI components & styles
 
 Now that MUI is setup. We can start fixing the weather components we broke by deleting the `.css` files.
+
+Let's start by updating `App.tsx` so that we have a `flexbox` container for our `CityWeatherContainer` components.
+
+[CSS Flexbox](https://www.w3schools.com/csS/css3_flexbox.asp) is a CSS layout model that allows for efficient arrangement of items within a container, enabling responsive design and alignment control.
+
+We will replace the `<div> </div>` container for the cities. With a `Box` element from MUI.
+
+```diff
+  import "@fontsource/roboto/300.css";
+  import "@fontsource/roboto/400.css";
+  import "@fontsource/roboto/500.css";
+  import "@fontsource/roboto/700.css";
+  import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+  import CityWeatherContainer from "./components/CityWeatherContainer";
+  import PageLayout from "./components/PageLayout";
++ import Box from "@mui/material/Box";
+  
+  const queryClient = new QueryClient();
+  
+  function App() {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <PageLayout>
+-         <div className="forecasts-container">
++         <Box sx={{ display: "flex", gap: 1, padding: 2 }}>
+            <CityWeatherContainer city="London" />
+            <CityWeatherContainer city="Helsinki" />
+            <CityWeatherContainer city="Melbourne" />
+-         </div>
++         </Box>
+        </PageLayout>
+      </QueryClientProvider>
+    );
+  }
+  
+  export default App;
+```
+
+Notice that we set `sx={{ display: "flex", gap: 1, padding: 2 }}` property which has inline css values. **S**tyle E**x**tension prop `sx` is used for adding styles to MUI elements without writing css.
+
+Then let's improve the design of the `CityWeatherContainer`s.
+
+**src/components/WeatherForecast.tsx**
+
+```diff
+  import WeatherForecast from "./WeatherForecast";
+  import WeatherForecastLoading from "./WeatherForecastLoading";
+  import { ErrorBoundary } from "react-error-boundary";
+  import WeatherForecastError from "./WeatherForecastError";
++ import Card from "@mui/material/Card";
++ import Box from "@mui/material/Box";
++ import CardHeader from "@mui/material/CardHeader";
++ import CardContent from "@mui/material/CardContent";
+ 
+  type CityWeatherContainerProps = {
+    city: string;
+  export default function CityWeatherContainer({
+    city,
+  }: CityWeatherContainerProps) {
+    return (
+-     <ErrorBoundary
+-       fallbackRender={({ error }) => (
+-         <WeatherForecastError message={error.message} />
+-       )}
+-     >
+-       <Suspense fallback={<WeatherForecastLoading />}>
+-         <WeatherForecast city={city} />
+-       </Suspense>
+-     </ErrorBoundary>
++     <Box sx={{ flex: 1 }}>
++       <Card variant="outlined">
++         <CardHeader title={city} />
++         <CardContent
++           sx={{
++             display: "flex",
++             flexDirection: "column",
++             alignItems: "center",
++           }}
++         >
++           <ErrorBoundary
++             fallbackRender={({ error }) => (
++               <WeatherForecastError message={error.message} />
++             )}
++           >
++             <Suspense fallback={<WeatherForecastLoading />}>
++               <WeatherForecast city={city} />
++             </Suspense>
++           </ErrorBoundary>
++         </CardContent>
++       </Card>
++     </Box>
+    );
+  }
+```
+
+Resulting `CityWeatherContainer` file should look like this
+
+**src/components/WeatherForecast.tsx**
+
+```tsx
+import { Suspense } from "react";
+import WeatherForecast from "./WeatherForecast";
+import WeatherForecastLoading from "./WeatherForecastLoading";
+import { ErrorBoundary } from "react-error-boundary";
+import WeatherForecastError from "./WeatherForecastError";
+import Card from "@mui/material/Card";
+import Box from "@mui/material/Box";
+import CardHeader from "@mui/material/CardHeader";
+import CardContent from "@mui/material/CardContent";
+
+type CityWeatherContainerProps = {
+  city: string;
+};
+
+export default function CityWeatherContainer({
+  city,
+}: CityWeatherContainerProps) {
+  return (
+    <Box sx={{ flex: 1 }}>
+      <Card variant="outlined">
+        <CardHeader title={city} />
+        <CardContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <ErrorBoundary
+            fallbackRender={({ error }) => (
+              <WeatherForecastError message={error.message} />
+            )}
+          >
+            <Suspense fallback={<WeatherForecastLoading />}>
+              <WeatherForecast city={city} />
+            </Suspense>
+          </ErrorBoundary>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+}
+```
+
+We And wrapped everything in MUI `Box` with `flex: 1` 
+
+In a Flexbox layout, `flex: 1` sets an element to have a `flex-grow` value of 1, a `flex-shrink` value of 1, and a `flex-basis` value of 0%. This means the element can grow and shrink in relation to its siblings based on the available space in the container. Specifically, it will grow to absorb any extra space if the container is larger than the total width of its items, or shrink at the same rate as its siblings if the container is smaller, ensuring a dynamic, adaptable layout.
+
+We are doing it so `CityWeatherContainer` and all of its sibling take equal space and displayed next to each-other with same proportions.
+
+Then we used `Card` component from MUI. [See documentation of MUI Card component from here](https://mui.com/material-ui/react-card/) 
+
+`Card` also has sub components `CardHeader` and `CardContent` we implemented them as well. `CardHeader` is now responsible from showing the city name. And `CardContent` encapsulates `WeatherForecast` or `WeatherForecastError` or `WeatherForecastLoading` based on the behavior of `ErrorBoundary` and `Suspense`.
+
+We also set `flexDirection: column` and `alignItems: center` styles from `sx` prop to `CardContent` so that children are layed out from top to bottom. `flexDirection: row` would lay them out from start to end (depending on the locale this is left to right, or right to left).
+
+Then finally let's update the style of `WeatherForecast.` We can pretty much re-write it using MUI components.
+
+**src/components/WeatherForecast.tsx**
+
+```tsx
+import Typography from "@mui/material/Typography";
+import ThunderstormOutlinedIcon from "@mui/icons-material/ThunderstormOutlined";
+import useWeatherConditions from "../hooks/useWeatherConditions";
+
+type WeatherForecastProps = {
+  city: string;
+};
+
+export default function WeatherForecast(props: WeatherForecastProps) {
+  const { weatherText, temperature } = useWeatherConditions(props.city);
+
+  return (
+    <>
+      <Typography variant="h3" component="div">
+        {temperature}°C
+      </Typography>
+      <ThunderstormOutlinedIcon sx={{ fontSize: "5em" }} />
+      <Typography variant="h6" component="div" color="text.secondary">
+        {weatherText}
+      </Typography>
+    </>
+  );
+}
+```
+
+Note the `color="text.secondary"` prop on `Typography` element. This is our secondary title which display the weather condition as text. `text.secondary` is a dynamic value from our default MUI theme. MUI fills this in with the appropriate color based on the dark / light color schemes.
+
+Now you can go to `localhost:8000` check how our app looks.
+
+![thunderstorms](assets/thunder-weather.png)
+
+Looks nicer but the thunderstorm icon is hardcoded so we will need to fix that. 
+
+Accuweather sends us icon id's for every weather condition. They have the [index of that here](https://developer.accuweather.com/weather-icons). We need to match them to iconset we get from MUI.
+
+I have written the mappings so you don't have to. To save time let's copy paste this into a new file at `src/utils/weather.ts`.
+
+**src/utils/weather.ts**
+
+```ts
+import Brightness7Outlined from "@mui/icons-material/Brightness7Outlined";
+import CloudQueueOutlined from "@mui/icons-material/CloudQueueOutlined";
+import FilterDramaOutlined from "@mui/icons-material/FilterDramaOutlined";
+import CloudOutlined from "@mui/icons-material/CloudOutlined";
+import LensBlurOutlined from "@mui/icons-material/LensBlurOutlined";
+import GrainOutlined from "@mui/icons-material/GrainOutlined";
+import FlashOnOutlined from "@mui/icons-material/FlashOnOutlined";
+import AcUnitOutlined from "@mui/icons-material/AcUnitOutlined";
+import InvertColorsOutlined from "@mui/icons-material/InvertColorsOutlined";
+import NightsStayOutlined from "@mui/icons-material/NightsStayOutlined";
+import WindPowerOutlined from "@mui/icons-material/WindPowerOutlined";
+import WbSunnyOutlined from "@mui/icons-material/WbSunnyOutlined";
+import type { SvgIconComponent } from "@mui/icons-material";
+
+// Based on https://developer.accuweather.com/weather-icons
+export const accuWeatherIconMap: { [key: number]: SvgIconComponent } = {
+  1: WbSunnyOutlined, // Sunny
+  2: Brightness7Outlined, // Mostly Sunny
+  3: CloudOutlined, // Partly Sunny
+  4: CloudQueueOutlined, // Intermittent Clouds
+  5: FilterDramaOutlined, // Hazy Sunshine
+  6: CloudOutlined, // Mostly Cloudy
+  7: CloudOutlined, // Cloudy
+  8: CloudOutlined, // Dreary (Overcast)
+  11: LensBlurOutlined, // Fog
+  12: GrainOutlined, // Showers
+  13: GrainOutlined, // Mostly Cloudy w/ Showers
+  14: GrainOutlined, // Partly Sunny w/ Showers
+  15: FlashOnOutlined, // T-Storms
+  16: FlashOnOutlined, // Mostly Cloudy w/ T-Storms
+  17: FlashOnOutlined, // Partly Sunny w/ T-Storms
+  18: GrainOutlined, // Rain
+  19: AcUnitOutlined, // Flurries
+  20: AcUnitOutlined, // Mostly Cloudy w/ Flurries
+  21: AcUnitOutlined, // Partly Sunny w/ Flurries
+  22: AcUnitOutlined, // Snow
+  23: AcUnitOutlined, // Mostly Cloudy w/ Snow
+  24: AcUnitOutlined, // Ice
+  25: AcUnitOutlined, // Sleet
+  26: InvertColorsOutlined, // Freezing Rain
+  29: AcUnitOutlined, // Rain and Snow
+  30: WbSunnyOutlined, // Hot
+  31: AcUnitOutlined, // Cold
+  32: WindPowerOutlined, // Windy
+  33: NightsStayOutlined, // Clear (Night)
+  34: NightsStayOutlined, // Mostly Clear (Night)
+  35: NightsStayOutlined, // Partly Cloudy (Night)
+  36: NightsStayOutlined, // Intermittent Clouds (Night)
+  37: NightsStayOutlined, // Hazy Moonlight
+  38: NightsStayOutlined, // Mostly Cloudy (Night)
+  39: GrainOutlined, // Partly Cloudy w/ Showers (Night)
+  40: GrainOutlined, // Mostly Cloudy w/ Showers (Night)
+  41: FlashOnOutlined, // Partly Cloudy w/ T-Storms (Night)
+  42: FlashOnOutlined, // Mostly Cloudy w/ T-Storms (Night)
+  43: AcUnitOutlined, // Mostly Cloudy w/ Flurries (Night)
+  44: AcUnitOutlined, // Mostly Cloudy w/ Snow (Night)
+};
+```
+
+Now we need to figure out how to dynamically pick the right icon based on accuweather icon id response.
+
+One way to do it is using the `useCallback` hook of react. As components are essentially functions. We will make a function that will return a layout. But this layout would be different based on icon id. Yet it will remain unchanged if the icon id doesn't change.
+
+Then we will use this function as a component. Layout 
+
+```tsx
+const WeatherIcon = useCallback(() => {
+  const IconComponent = accuWeatherIconMap[weatherIcon] ?? ErrorOutlined;
+  return <IconComponent sx={{ fontSize: "5em" }} />;
+}, [weatherIcon]);
+```
+
+This function will evaluates which icon component to use by looking up the `weatherIcon` id from `accuWeatherIconMap` util we just created. Then if it can not find an icon it falls back to `ErrorOutlined` icon. Then renders this component.
+
+Let's see this implemented in the `WeatherForecast.tsx`.
+
+```diff
+  import Typography from "@mui/material/Typography";
+- import ThunderstormOutlinedIcon from "@mui/icons-material/ThunderstormOutlined";
+  import useWeatherConditions from "../hooks/useWeatherConditions";
++ import { useCallback } from "react";
++ import { accuWeatherIconMap } from "../utils/weather";
++ import { ErrorOutlined } from "@mui/icons-material";
+ 
+  type WeatherForecastProps = {
+    city: string;
+  };
+ 
+  export default function WeatherForecast(props: WeatherForecastProps) {
+-   const { weatherText, temperature } = useWeatherConditions(props.city);
++   const { weatherText, temperature, weatherIcon } = useWeatherConditions(
++     props.city
++   );
++
++   const WeatherIcon = useCallback(() => {
++     const IconComponent = accuWeatherIconMap[weatherIcon] ?? ErrorOutlined;
++     return <IconComponent sx={{ fontSize: "5em" }} />;
++   }, [weatherIcon]);
+ 
+    return (
+      <>
+        <Typography variant="h3" component="div">
+          {temperature}°C
+        </Typography>
+-       <ThunderstormOutlinedIcon sx={{ fontSize: "5em" }} />
++       <WeatherIcon />
+        <Typography variant="h6" component="div" color="text.secondary">
+          {weatherText}
+        </Typography>
+      </>
+    );
+  }
+```
+
+Now that we replaced the hardcoded `ThunderstormOutlinedIcon` we should see the correct weather icons on our app. Go to `localhost:8000` to check the changes. You should see something like this.
+
+![dynamic weather icons](assets/dynamic-weather-icons.png)
