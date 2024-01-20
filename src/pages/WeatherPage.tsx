@@ -1,15 +1,18 @@
 import CityWeatherContainer from "../components/CityWeatherContainer";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 export default function WeatherPage() {
   return (
-    <div>
-      <h2>Weather Page</h2>
+    <>
+      <Typography variant="h4" component="h2">
+        Weather
+      </Typography>
       <Box
         sx={{
           display: "flex",
           gap: 1,
-          padding: 2,
+          width: "100%",
           flexDirection: {
             xs: "column",
             sm: "column",
@@ -23,6 +26,6 @@ export default function WeatherPage() {
         <CityWeatherContainer city="Helsinki" />
         <CityWeatherContainer city="Melbourne" />
       </Box>
-    </div>
+    </>
   );
 }

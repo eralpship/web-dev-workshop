@@ -1,10 +1,21 @@
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
 
 export default function HomePage() {
   return (
-    <div>
-      <h2>Home Page</h2>
-      <Link to="/weather">Weather</Link>
-    </div>
+    <>
+      <Typography variant="h4" component="h2">
+        Choose a demo
+      </Typography>
+      <Button
+        component={Link}
+        to="/weather"
+        variant="contained"
+        color="primary"
+      >
+        Weather
+      </Button>
+    </>
   );
 }

@@ -7,6 +7,7 @@ import { Route, Routes, BrowserRouter } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import WeatherPage from "./pages/WeatherPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import PageLayout from "./components/PageLayout";
 
 const queryClient = new QueryClient();
 
@@ -15,9 +16,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/weather" element={<WeatherPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/" element={<PageLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="weather" element={<WeatherPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
