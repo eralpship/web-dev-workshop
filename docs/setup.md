@@ -2,6 +2,13 @@
 
 I prepared a development docker container so you don't have to waste time installing the right nodejs version. I recommend working inside the container for this workshop. However it is optional. If you feel confident with installing nodejs, check the required node version in `.nvmrc` file. Skip to Install Dependencies secion and run the command directly on your local setup. 
 
+For this workshop, I set the project up for you that we have the same setup to start from. If you would make your own project from scratch, you could create it up with [vite's scaffolding utility](https://vitejs.dev/guide/#scaffolding-your-first-vite-project). Vite is the bundler we are using in this project, we will learn about it later.
+Using the utility if you'd run the command `npm create vite@latest your-project-name-here -- --template react-swc-ts` you'd generate a pretty similar boilerplate.
+
+We typically use project generators to create react projects nowadays. Because configuring tooling is trivial yet it takes time. If you are interested, you can set the project by yourself manually, for that see [how to create a react project here](https://react.dev/learn/start-a-new-react-project)
+
+I suggest we continue with the docker container from this repository, so let's...
+
 ## Build & run docker container
 
 - Start docker desktop if it is not running already
