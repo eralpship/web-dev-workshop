@@ -452,6 +452,6 @@ We can easily add this by inserting buttons into the `ToolBar` of the `PageHeade
 
 I defined the menu item `path`s and `title`s in an array above the component instead of the layout. So that it would be easy to add/remove items from the menu later. We then loop over the `menuItems` array by `map` and render each item as `Button`s.
 
-It should look like this. and clicking the buttons on the top right should take user to associated pages.
+It should look like this, and clicking the buttons on the top right should take user to associated pages.
 
 ![init appbar menu](assets/init-appbar-menu.png)
