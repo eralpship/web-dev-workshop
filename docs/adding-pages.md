@@ -237,7 +237,9 @@ Let's add some common page elements and styles to wrapping `PageLayout` componen
  import { createTheme } from "@mui/material/styles";
  import useMediaQuery from "@mui/material/useMediaQuery";
  import { useMemo } from "react";
-@@ -23,7 +24,30 @@ export default function PageLayout() {
+     
+    ...
+     
      <ThemeProvider theme={theme}>
        <CssBaseline />
        <PageHeader />
@@ -331,7 +333,9 @@ Let's update the pages with MUI components
            flexDirection: {
              xs: "column",
              sm: "column",
-@@ -23,6 +26,6 @@ export default function WeatherPage() {
+
+             ...
+
          <CityWeatherContainer city="Helsinki" />
          <CityWeatherContainer city="Melbourne" />
        </Box>
