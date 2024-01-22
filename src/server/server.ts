@@ -21,6 +21,16 @@ const resolvers: Resolvers = {
       return books as Book[];
     },
   },
+  Mutation: {
+    addBook: async (_, { author, title }, context) => {
+      const book = await context.db
+        .insertInto("book")
+        .values({ author, title })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+      return book as Book;
+    },
+  },
 };
 
 const server = new ApolloServer<ServerContext>({
@@ -33,4 +43,4 @@ const { url } = await startStandaloneServer(server, {
   listen: { port: 4000 },
 });
 
-console.log(`🚀  Server ready at: ${url}`);
+console.log(`GraphQL Server ready at: ${url}`);
