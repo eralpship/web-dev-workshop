@@ -1,45 +1,48 @@
 # Error handling and caching
 
 We have few issues with our implementation.
-- We have double `useEffect` calls because of react's development only strict mode
-- We fetch data every time, could keep it in memory for a bit to avoid excessive calls
-- We don't handle the errors if something wrong happens while fetching the weather conditions
-- We have API keys hardcoded into our code. Which will end up in repository. We shouldn't leak keys.
+
+- We have double `useEffect` calls because of React's strict mode for development use only
+- We fetch data every time instead of caching to avoid excessive calls
+- We don't handle any errors if something wrong happens while fetching the weather conditions
+- We have API keys hardcoded into our code which would end up in a repository. We really shouldn't leak keys!
 
 ## Setting up environment variables
 
-Let's setup environment variables so that we don't have to hardcode api keys. We can keep them in a `.env` file and exclude it from git repository.
+Let's setup environment variables so that we don't have to hardcode API keys. We can keep them in a `.env` file and exclude it from the git repository.
 
-create a .env file at the root of the project. And put your accuweather api key here.
+Create an .env file at the root of the project and put your accuweather API key here.
 
 **.env**
+
 ```
 VITE_ACCUWEATHER_API_KEY=YOURAPIKEYHERE
 ```
 
-We need to also prevent this file from getting checked to git. So we should add `.env` to our `.gitignore`
+We need to also prevent this file from getting pushed to git. Add `.env` to our `.gitignore` file.
 
 **.gitignore**
+
 ```diff
   ...
   *.njsproj
   *.sln
   *.sw?
-  
+
 + .env
 ```
 
-VITE_ prefix is an indication for vite bundler to include this as a constant in frontend code. Normally we would keep this in the server and not leak the api key to frontend. If we'd omit the VITE_ prefix frontend code won't have access to the key or the value.
+VITE* prefix is an indication for the vite bundler to include this as a constant in frontend code. Normally we would keep this in the server and not leak the API key to the frontend. If we'd omit the VITE* prefix, frontend code wouldn't have access to the key or the value.
 
-We will later setup a nodejs api server and make api calls to weather service from there so this is a temporary step.
+(We will later setup a NodeJS API server and make API calls to weather service from the server so this is a temporary step.)
 
-Vite loads environment variables and exposes them so we can access like this
+Vite loads environment variables and exposes them so it can access them like so:
 
 ```tsx
-import.meta.env.VITE_ACCUWEATHER_API_KEY
+import.meta.env.VITE_ACCUWEATHER_API_KEY;
 ```
 
-let's update `useWeatherConditions.ts` to read api key from .env file there
+Let's update `useWeatherConditions.ts` to read the API key from the `.env` file:
 
 **src/hooks/useWeatherConditions.tsx**
 
@@ -77,33 +80,33 @@ Try going to `localhost:8000` to see if everything works as before.
 
 ## Adding react-query
 
-About the issues with the queries and error handling.
-We can solve it by implementing the tool [react-query](https://tanstack.com/query/latest) 
+Next, we are going to tackle our issues with double queries and the non-existing error handling. [React-query](https://tanstack.com/query/latest) is implemented to solve the queries.
 
-in your terminal exit vite process (ctrl + c)
-(remember to use the docker shell if you have been working in it)
+In your terminal exit the vite process (ctrl + c)
+(remember to use the docker shell if you have been working inside it).
 
-install react-query
+Install react-query
 
 ```bash
 npm i @tanstack/react-query
 
 ```
-install it's linter extensions as well
+
+Install the linter extensions as well
 
 ```bash
 npm i -D @tanstack/eslint-plugin-query
 ```
 
-start vite development server again
+Start vite development server again
 
 ```bash
 npm run dev
 ```
 
-We will need to setup `react-query`s `QueryClient` in our code so it can work.
+We will need to setup `react-query`'s `QueryClient` in our code so it can work.
 
-open `App.tsx` and make these changes
+Open `App.tsx` and make these changes:
 
 **src/App.tsx**
 
@@ -111,9 +114,9 @@ open `App.tsx` and make these changes
 + import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
   import "./App.css";
   import CityWeatherContainer from "./components/CityWeatherContainer";
-  
+
   const queryClient = new QueryClient();
-  
+
   function App() {
     return (
 +     <QueryClientProvider client={queryClient}>
@@ -128,13 +131,13 @@ open `App.tsx` and make these changes
 +     </QueryClientProvider>
     );
   }
-  
+
   export default App;
 ```
 
 Now that it's set up, let's clean up the weather service implementation using `react-query`
 
-Move weather api related code from `src/hooks/useWeatherConditions.ts` into `src/services/weather.ts`. And add some error handling
+Create a new file `src/services/weather.ts` and move the weather api related code from `src/hooks/useWeatherConditions.ts` into `src/services/weather.ts`. Let's also add some error handling:
 
 **src/services/weather.ts**
 
@@ -185,7 +188,7 @@ export async function getWeatherConditions(cityKey: string) {
 }
 ```
 
-And then call these functions from `useWeatherConditions`
+Then, call these functions from `useWeatherConditions`:
 
 **src/hooks/useWeatherConditions.ts**
 
@@ -231,19 +234,19 @@ export default function useWeatherConditions(city: string) {
 }
 ```
 
-There is several things happening here;
+There are several things happening here;
 
-- we removed api calls and wrapped them with `useQuery` from `react-query`
+- removed API calls and wrapped them with `useQuery` from `react-query`
 - gave them caching keys `["search-city", city]` and `["weather-conditions", cityKey]` so that calls with particular parameters get cached for 5 minutes (by default)
 - automatic retry, when query's fail for some reason `useQuery` will retry them.
-- removed loading state and reimplemented using loading states of queries
-- we gathered and returned the errors from query's
-- we enable weather conditions query conditionally with `enabled: Boolean(cityKey)`. Because we don't want it to trigger for no reason when we don't have a valid `cityKey` 
-- removed `useEffect` hook we used just to load data automatically. `useQuery` will fetch the queries automatically by default.
+- removed the previous loading state functionality and reimplemented using loading states of queries
+- gathered and returned the errors from query's
+- enabled weather conditions query conditionally with `enabled: Boolean(cityKey)`, because we don't want it to trigger for no reason when we don't have a valid `cityKey`
+- removed `useEffect` hook we used to load data automatically, instead `useQuery` will fetch the queries automatically by default.
 
-Then let's implement our new `error` property that we returned into `CityWeatherContainer` component
+Let's then implement our new `error` property that we returned into the `CityWeatherContainer` component.
 
-Start by making a error display component. Create `src/components/WeatherForecastError.tsx`
+Start by making a error display component. Create a new file `src/components/WeatherForecastError.tsx`
 
 **src/components/WeatherForecastError.tsx**
 
@@ -264,9 +267,10 @@ export default function WeatherForecastError({
 }
 ```
 
-Then implement it in `src/components/CityWeatherContainer.tsx`
+Then implement it in `src/components/CityWeatherContainer.tsx`:
 
 **src/components/CityWeatherContainer.tsx**
+
 ```diff
   ...
   export default function CityWeatherContainer({
@@ -274,15 +278,15 @@ Then implement it in `src/components/CityWeatherContainer.tsx`
   }: CityWeatherContainerProps) {
     const { reload, weatherIcon, weatherText, temperature, loading, error } =
       useWeatherConditions(city);
-  
+
 +   if (error) {
 +     return <WeatherForecastError message={error.message} />;
 +   }
-  
+
     if (loading) {
       return <WeatherForecastLoading />;
     }
-  
+
     return (
       <WeatherForecast
         city={city}
@@ -291,9 +295,9 @@ Then implement it in `src/components/CityWeatherContainer.tsx`
 
 Let's check `localhost:8000` to see if we see any errors already.
 
-If you haven't run out of your api call limit already, and have no errors showing. Let's cause an error on purpose to test the handled error display.
+If you haven't run out of your api call limit already and have no errors showing, let's cause an error on purpose to test the handled error display.
 
-in `App.tsx` temporarily change a city name to a city that doesn't exist. So that api call fails.
+In `App.tsx` temporarily change a city name to a city that doesn't exist so that the API call fails:
 
 **src/App.tsx**
 
@@ -308,32 +312,33 @@ in `App.tsx` temporarily change a city name to a city that doesn't exist. So tha
 
 ![assorted errors](assets/assorted-errors.png)
 
-When you revert the change you should see weather conditions normally. If you still see errors, try renewing you api key by deleting & recreating the accuweather app. 
+When you revert the change you should see weather conditions normally. If you still see errors, try renewing you api key by deleting & recreating the Accuweather app.
 
-Also if you open developer console of your browser and refresh the page. You should see exactly 6 api calls made, like we expected before. Unless queries failed and got retried.
+Open the developer console of your browser and refresh the page. You should now see exactly 6 API calls made, just like we expected before. (Unless queries failed and got retried.)
 
-`react-query` is aware of React strict mode's behavior. Also deduplicates queries happen too soon back to back to avoid excessive calls.
+`react-query` is aware of React strict mode's behavior and unduplicates the calls.
 
 ![dedupe](assets/query-dedupe.png)
 
 ## Suspense and Error boundaries
 
-We deleted a lot of code from `useWeatherConditions` hook. I think we can delete even more.
+We deleted a lot of code from `useWeatherConditions` hook. I think we can delete even more!
 
-We will use react's one of the newest features called "Suspense". [React Suspense](https://react.dev/reference/react/Suspense) allows us to track automatically if an underlying component is busy with some asynchronous task. Which is perfect for our case which is data fetching.
+We will use one of the newest features of React's called "Suspense". [React Suspense](https://react.dev/reference/react/Suspense) allows us to track automatically if an underlying component is busy with an asynchronous task. Perfect for our case of data fetching.
 
-This will allow us to stop passing around loading and error state information around and have it automatically handled from parent component `CityWeatherContainer` of its child `WeatherForecast`.
+Suspense will allow us to stop passing around loading and error state information and instead have it be automatically handled from the parent component's `CityWeatherContainer` child component `WeatherForecast`.
 
-`react-query` is also compatible with Suspense. So we can easily turn our `useQuery` calls into `useSuspenseQuery` calls.
+`react-query` is also compatible with Suspense. We can easily turn our `useQuery` calls into `useSuspenseQuery` calls.
 
-let's start changing from `useWeatherConditions.ts`
+Let's start the changes from `useWeatherConditions.ts`:
 
 **src/hooks/useWeatherConditions.ts**
+
 ```diff
   import * as WeatherApi from "../services/weather";
 - import { useQuery } from "@tanstack/react-query";
 + import { useSuspenseQuery } from "@tanstack/react-query";
- 
+
   export default function useWeatherConditions(city: string) {
 -   const citySearchQuery = useQuery({
 +   const citySearchQuery = useSuspenseQuery({
@@ -342,7 +347,7 @@ let's start changing from `useWeatherConditions.ts`
     });
     const citySearchData = citySearchQuery.data;
     const cityKey = citySearchData?.[0]?.Key;
- 
+
 -   const weatherConditionsQuery = useQuery({
 +   const weatherConditionsQuery = useSuspenseQuery({
       queryKey: ["weather-conditions", cityKey],
@@ -355,11 +360,11 @@ let's start changing from `useWeatherConditions.ts`
 +       return WeatherApi.getWeatherConditions(cityKey);
 +     },
     });
- 
+
     const weatherConditionsData = weatherConditionsQuery.data;
     const weatherIcon = weatherConditionsData?.[0]?.WeatherIcon;
     const temperature = weatherConditionsData?.[0]?.Temperature?.Metric?.Value;
- 
+
 -   const reload = () => {
 -     citySearchQuery.refetch();
 -     weatherConditionsQuery.refetch();
@@ -378,7 +383,8 @@ let's start changing from `useWeatherConditions.ts`
   }
 ```
 
-so we will end up with;
+We will end up with:
+
 **src/hooks/useWeatherConditions.ts**
 
 ```tsx
@@ -417,14 +423,14 @@ export default function useWeatherConditions(city: string) {
 }
 ```
 
-Let's move `useWeatherConditions` hook into `WeatherForecast` and remove the unused `onClick` handler. It will not need `temperature` and other props neither because we can now get them from the query response so let's remove them.
+Let's move the `useWeatherConditions` hook into `WeatherForecast` and remove the unused `onClick` handler. It will not need `temperature` and other props either, because we can now get them from the query response so let's remove them:
 
 **src/components/WeatherForecastProps.tsx**
 
 ```diff
 +import useWeatherConditions from "../hooks/useWeatherConditions";
  import "./WeatherForecast.css";
- 
+
  type WeatherForecastProps = {
    city: string;
 -  temperature: number | null;
@@ -432,7 +438,7 @@ Let's move `useWeatherConditions` hook into `WeatherForecast` and remove the unu
 -  icon: string | null;
 -  onClick: (city: string) => void;
  };
- 
+
  export default function WeatherForecast(props: WeatherForecastProps) {
 -  const handleOnClick = () => {
 -    props.onClick(props.city);
@@ -455,9 +461,10 @@ Let's move `useWeatherConditions` hook into `WeatherForecast` and remove the unu
    );
 ```
 
-So resulting `WeatherForecastProps` will be;
+Resulting `WeatherForecastProps` will be:
 
 **src/components/WeatherForecastProps.tsx**
+
 ```tsx
 import useWeatherConditions from "../hooks/useWeatherConditions";
 import "./WeatherForecast.css";
@@ -485,15 +492,15 @@ export default function WeatherForecast(props: WeatherForecastProps) {
 
 Finally we need to modify `CityWeatherContainer` to implement `Suspense` and `ErrorBoundaries`.
 
-First install `react-error-boundaries` module so we can use a reusable error boundary. Otherwise we'd need to do a [custom boundary implementation](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary). Which is not too difficult but `react-error-boundaries` module handles more edge cases and more reusable, allows custom fallback ui as well.
+First install `react-error-boundaries` module so that we can use a reusable error boundary. Otherwise we'd need to do a [custom boundary implementation](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary), which is not too difficult but `react-error-boundaries` module handles more edge cases and is more reusable allowing custom fallback UI as well.
 
-Run this in your terminal. and remember to restart the vite dev server after
+Run this in your terminal and remember to restart the vite dev server after:
 
 ```bash
 npm i react-error-boundary
 ```
 
-now we can add it to `CityWeatherContainer`
+Now, we can add it to `CityWeatherContainer`:
 
 **src/components/CityWeatherContainer**
 
@@ -505,7 +512,7 @@ now we can add it to `CityWeatherContainer`
  import WeatherForecastLoading from "./WeatherForecastLoading";
 +import { ErrorBoundary } from "react-error-boundary";
 +import WeatherForecastError from "./WeatherForecastError";
- 
+
  type CityWeatherContainerProps = {
    city: string;
 @@ -10,24 +11,15 @@ type CityWeatherContainerProps = {
@@ -544,7 +551,7 @@ now we can add it to `CityWeatherContainer`
  }
 ```
 
-so it will much more concise like this;
+We will end up with much more concise code like so:
 
 **src/components/CityWeatherContainer**
 

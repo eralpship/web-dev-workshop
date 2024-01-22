@@ -4,36 +4,36 @@ Let's make our web app actually useful by fetching some live data
 
 ## Accuweather API
 
-We will use accuweather's API to search for a city, then get its current weather conditions.
+We will use accuweather's API to search for a city and get its current weather conditions.
 
-- get your api key from here https://developer.accuweather.com/
+- get your api key from https://developer.accuweather.com/
 - click register at the top right
 - then click my apps or go to https://developer.accuweather.com/user/me/apps
 - click add a new app
 
-Here's the options we should choose, doesn't matter that much but I recommend turning off the trials.
+Here's the options we should choose. I recommend turning off the trials.
 
 ![accuweather options](assets/accuweather-options.png)
 
-Then when you click "create app" you should see your newly created app. click on it to reveal the api key. 
+Once you've clicked "create app" you should see your newly created app. Click on it to reveal the api key.
 
 ![accuweather api key](assets/api-key-page.png)
 
-let's first try to get some live weather data using curl. Run this command in your terminal but remember to change `REPLACETHISWITHYOURAPIKEY` with your own api key from accuweather page
+Let's first try to get some live weather data using curl. Run this command in your terminal but remember to change `REPLACETHISWITHYOURAPIKEY` with your own api key from the Accuweather page:
 
 ```bash
 curl -X GET "http://dataservice.accuweather.com/locations/v1/cities/search?apikey=REPLACETHISWITHYOURAPIKEY&q=tallinn"
 ```
 
-You should see a response like this. This api endpoint searches for cities. We need the city `Key` value in order to fetch weather forecast from the api.
+This api endpoint searches for cities. We need the city `Key` value in order to fetch a weather forecast for a specific location from the api. You should see a response like this:
 
 ```bash
 [{"Version":1,"Key":"127964","Type":"City","Rank":30,"LocalizedName":"Tallinn", ...
 ```
 
-City key is 127964 for Tallinn. If you searched another city take a note of it somewhere.
+The City key for Tallinn is 127964. If you searched another city take a note of it's key somewhere.
 
-Then let's fetch the weather forecast. Run this command also in the terminal replacing api key like we did before. Also change `127964` in the url to the `Key` of the city you searched if you searched for a different city.
+Let's then fetch the weather forecast. Run this command in the terminal replacing the api key like we did before. If you searched for a different city, also replace the `Key` value to your cities numerical value.
 
 ```bash
 curl -X GET "http://dataservice.accuweather.com/currentconditions/v1/127964?apikey=REPLACETHISWITHYOURAPIKEY"
@@ -45,18 +45,17 @@ You should get a response like this;
 [{"LocalObservationDateTime":"2024-01-16T08:42:00+02:00","EpochTime":1705387320,"WeatherText":"Cloudy","WeatherIcon":7, ...
 ```
 
-We will need the values for the `WeatherText` and `WeatherIcon`. Also the temperature part further in the response;
+We will need values for the `WeatherText` and `WeatherIcon`. Later we will also grab the temperature from the response;
 
 ```bash
 ... "Temperature":{"Metric":{"Value":-11.1,"Unit":"C","UnitType":17}, ...
 ```
 
-With accuweather's free api access only allows **50** API calls per day. If your api calls start returning api limit error. You can go to [accuweather developer console](https://developer.accuweather.com/user/me/apps) and delete your app. Create a new app to get a new API key. Update your code with this new API key.
+Accuweather's free api access only allows **50** API calls per day. Should you exceed the limit, simply go to [accuweather developer console](https://developer.accuweather.com/user/me/apps) and delete your app. Then create a new app to get a new API key. Update your code with the new API key.
 
 ## Using browser fetch API
 
-Let's put all of this into our react web app. Open `WeatherForecast.tsx` and change the `handleOnClick` handler.
-We need to add `async` before the function definition so that we can use `await` keyword. Async-Await is a concept in javascript which allows us to wait for things to happen. Here we will wait for our api call to respond.
+Let's place the weather api data into our React web app. Open `WeatherForecast.tsx` and make the following changes to the `handleOnClick` handler:
 
 ```diff
  export default function WeatherForecast(props: WeatherForecastProps) {
@@ -71,9 +70,11 @@ We need to add `async` before the function definition so that we can use `await`
    };
 ```
 
-Remember to replace your api key in the url. When you save and check `localhost:8000`. Reveal javascript developer console. 
-Click on any city. You should see a log in the console. It might look like `city search data [{…}]` click on `[{…}]` to expand it.
-You should see the values we were expecting.
+We need to add `async` before the function definition so that we can use the `await` keyword. Async-Await is a concept in javascript which allows us to wait for things to happen. Here we will wait for our api call to respond.
+
+Remember to replace your api key in the url. Save, check `localhost:8000` and reveal the javascript developer console.
+Click on any city. You should see a log in the console. It might look like `city search data [{…}]`, click on `[{…}]` to expand it.
+You should see the values as expected.
 
 Let's dig out the city key we received from the response json data.
 
@@ -89,7 +90,7 @@ When you go to our web app and click any city you should see this in the logs;
 city key 127964
 ```
 
-Then let's fetch the weather conditions with the city key. Remember to replace your api key again
+Let's then fetch the weather conditions with the city key. Remember to replace your api key again:
 
 ```diff
   ...
@@ -120,7 +121,7 @@ Then let's fetch the weather conditions with the city key. Remember to replace y
   ...
 ```
 
-Now when you click on cities your javascript console show these.
+Now when you click on cities your javascript console shows this:
 
 ```bash
 city key 127964
@@ -129,16 +130,16 @@ weather icon 7
 temperature -12.2
 ```
 
-Let's show these values in the web page. We will use the `useState` hook from before to store the state of the data we fetched temporarily. Then pass it on to the layout to display them.
+Let's show these values in the web page. We will use the `useState` hook from before to store the state of the data we fetched temporarily. Then the values are passed on to the layout to display them.
 
 ```diff
  export default function WeatherForecast(props: WeatherForecastProps) {
 +  const [weatherText, setWeatherText] = useState<string | null>(null);
 +  const [weatherIcon, setWeatherIcon] = useState<string | null>(null);
 +  const [temperature, setTemperature] = useState<number | null>(null);
- 
+
    const handleOnClick = async () => {
-     
+
      ...
 
 _    console.log("weather text", weatherText);
@@ -148,7 +149,7 @@ _    console.log("temperature", temperature);
 +    setWeatherIcon(weatherIcon);
 +    setTemperature(temperature);
    };
- 
+
    return (
      <div className="weather-forecast" onClick={handleOnClick}>
        <div className="weather-forecast-title">Weather in {props.city}</div>
@@ -163,11 +164,11 @@ _    console.log("temperature", temperature);
  }
 ```
 
-Now when you go to `localhost:8000` you'll see that the values we put for cities are gone. The reason is that the states for `weatherText`, `weatherIcon`, `temperature` are null in the beginning.
+Now when you go to `localhost:8000` you'll see that the values we put for the cities are gone. The reason is that the states for `weatherText`, `weatherIcon`, `temperature` are null in the beginning.
 
 ![click initial](assets/click-to-load-initial.png)
 
-Click on one of the boxes, if everything was right we should see that box in particular change.
+Click on one of the boxes and we should see that box in particular change.
 
 ![click loaded](assets/click-to-load-loaded.png)
 
@@ -175,9 +176,7 @@ Nice to get some real live data but the problem is that we are showing the wrong
 
 ## Making your own hooks
 
-Start by making a function in a new file called `use` `src/hooks/useWeatherConditions.tsx`
-
-and move the weather data state from `WeatherConditions.tsx` into `useWeatherConditions.ts`
+Start by making a function in a new file called `use` `src/hooks/useWeatherConditions.tsx` and move the weather data state from `WeatherConditions.tsx` into `useWeatherConditions.ts`
 
 **useWeatherConditions.ts**
 
@@ -204,7 +203,7 @@ export default function useWeatherConditions(city: string) {
 }
 ```
 
-Also we need to move the code that fetches the API to here as well. Take the code from inside `handleOnClick` callback of `WeatherForecast` component into `reload` callback of `useWeatherConditions`
+We also need to move the code that fetches the API to `useWeatherConditions.ts`. Take the code from inside `handleOnClick` callback of `WeatherForecast` component and move it to the `reload` callback of the `useWeatherConditions.ts`
 
 **useWeatherConditions.ts**
 
@@ -246,11 +245,11 @@ We now need to generalize & reuse this api call code for different cities. In or
    const citySearchData = await citySearchResponse.json();
 ```
 
-Notice that we changed to `` ` `` backticks from doublequotes `"` and wrapped `city` with `${}`.
+Notice that we changed to `` ` `` backticks from double quotes `"` and wrapped `city` with `${}`.
 
-This is called [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)s in javascript. A way to insert variables into strings without doing `"some string" + variable + "rest of the string"`.
+This is called a [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) in javascript. It is a way to insert variables into strings without doing `"some string" + variable + "rest of the string"`.
 
-We moved all the code that fetches the data from `WeatherForecast` component into `useWeatherConditions` function. Also revert our changes in the layour so we read the weather conditions from `props` again like it was before.
+We moved all the code that fetches the data from `WeatherForecast` component into `useWeatherConditions` function. Let's revert our changes in the layout to read the weather conditions from `props` as it was before.
 
 ```diff
      <div className="weather-forecast" onClick={handleOnClick}>
@@ -264,7 +263,7 @@ We moved all the code that fetches the data from `WeatherForecast` component int
      </div>
 ```
 
-Removing the code from the `WeatherForecast` component should make it be the same as we started;
+Removing the code from the `WeatherForecast` component should make the code the same as what we started with;
 
 ```tsx
 import "./WeatherForecast.css";
@@ -293,32 +292,32 @@ export default function WeatherForecast(props: WeatherForecastProps) {
 }
 ```
 
-These kind of utility functions like `useWeatherConditions` have a special name in react. They are called `hook`s. Similar to the `useState` one we used before. There's a naming convention for hooks, they should start with the word `use`.. in the beginning. Otherwise they are plain normal functions. Only thing that is different from components is that they produce data instead of layout. They both are used to reuse code. Components are for reusing and composing layout, hooks are for reusing and composing data.
+These kind of utility functions like `useWeatherConditions` have a special name in React. They are called `hook`s. There's a general naming convention for hooks to start with the word `use`, like the `useState` hook we used before. Otherwise they are plain normal functions. Only thing that is different from components is that hooks produce data instead of layouts. They both are used to reuse code. Components are for reusing and composing layouts, hooks are for reusing and composing data.
 
 ## Implementing hooks
 
 Let's go to `App.tsx` and implement our new `useWeatherConditions` hook (function) so that we provide data into `WeatherForecast` components from there.
 
-- We import `useWeatherConditions.ts` into `App.tsx`
+- import `useWeatherConditions.ts` into `App.tsx`
 - call the `useWeatherConditions` function with `Helsinki` city parameter.
-- Update the Helsinki's `<WeatherForecast />` component in the layout with the values from the result `helsinkiWeather` of `useWeatherConditions("helsinki")`
-- Finally we need to trigger the loading of the data in the `handleOnForecastCityClicked` callback.
+- update the Helsinki's `<WeatherForecast />` component in the layout with the values from the result `helsinkiWeather` of `useWeatherConditions("helsinki")`
+- finally, trigger the loading of the data in the `handleOnForecastCityClicked` callback.
 
 ```diff
   import "./App.css";
   import { useState } from "react";
   import WeatherForecast from "./components/WeatherForecast";
 + import useWeatherConditions from "./hooks/useWeatherConditions";
-  
+
   function App() {
     const [selectedCity, updateSelectedCity] = useState<string | null>(null);
 +   const helsinkiWeather = useWeatherConditions("helsinki");
-  
+
     const handleOnForecastCityClicked = (city: string) => {
 +     helsinkiWeather.reload();
       updateSelectedCity(city);
     };
-  
+
     return (
       <>
         <h1>Starship Web Dev Workshop</h1>
@@ -344,9 +343,9 @@ Let's go to `App.tsx` and implement our new `useWeatherConditions` hook (functio
           <WeatherForecast
 ```
 
-You might see red squiggly lines indicating type errors where we changed code. This is because props of `WeatherForecast` is not expecting `null` and it is only expecting strings. Our app will work fine, you can ignore it for now. But we must fix this at some point. We will handle it properly and show a loading indicator state soon in the next phase.
+You might see red squiggly lines indicating type errors where we changed the code. This is because props of `WeatherForecast` is not expecting `null` and it is only expecting strings. Our app will work fine, you can ignore the type errors for now. We will fix this at a later point by showing a loading indicator state.
 
-Now when you go to `localhost:8000` you'll see that only Helsinki component is missing values. When you click on it, after a little while it should show the live weather conditions.
+Now, when you go to `localhost:8000` you'll see that only Helsinki component is missing values. When you click on it, after a little while it should show the live weather conditions.
 
 ![helsinki init](assets/helsinki-click-initial.png)
 
@@ -354,7 +353,7 @@ After clicking on it.
 
 ![helsinki loaded](assets/helsinki-click-loaded.png)
 
-Now we are showing the correct data for Helsinki. Let's turn other `WeatherForecast` components of London and Melbourne to show live data as well. Now it's easy to reuse the weather data fetch code because we encapsulated in the function `useWeatherConditions`.
+Now we are showing the correct data for Helsinki. Let's change the other `WeatherForecast` components of London and Melbourne to show live data as well. It's easy to reuse the weather data fetch code because we've encapsulated it in the function `useWeatherConditions`.
 
 ```diff
 function App() {
@@ -402,13 +401,13 @@ function App() {
 }
 ```
 
-Open `localhost:8000` then click on any city. All of the cities should load and show weather conditions.
+Open `localhost:8000` then click on a city. All of the cities should load and show weather conditions. Why is that?
 
 ![all cities loaded](assets/all-cities-loaded-together.png)
 
-The reason why all of them loaded even though we clicked one is that all the `onClick` callbacks of all the cities are handled by single `handleOnForecastCityClicked` handler function. And `reload()` calls of helsinki, london and melbourne are fired all at once.
+The reason why all of them loaded even though we clicked a single city, is that all the `onClick` callbacks of all the cities are handled by a single `handleOnForecastCityClicked` handler function. Therefore, `reload()` calls of Helsinki, London and Melbourne are fired all at once.
 
-We will fix it properly later but for now as a temporary fix we can only trigger loading of the clicked city.
+We will fix this properly later but for now, let's only trigger loading of the clicked city.
 
 ```diff
   const handleOnForecastCityClicked = (city: string) => {
@@ -425,8 +424,8 @@ We will fix it properly later but for now as a temporary fix we can only trigger
   };
 ```
 
-We check which city was clicked from the `city` parameter `handleOnForecastCityClicked`. `toLowerCase` is needed because city titles come from are capitalized as `Helsinki` so `helsinki` would not match otherwise.
+We check which city was clicked from the `city` parameter `handleOnForecastCityClicked`. The `toLowerCase` function is needed because the city titles are capitalized unlike in the api call.
 
-Now when you try clicking individual cities you should see that only that one gets loaded.
+Now when you try clicking individual cities you should see that only the selected one gets loaded.
 
 https://github.com/eralpship/web-dev-workshop/assets/106536625/a06ac305-dc7c-4c99-a2f7-7e22cc698d62
