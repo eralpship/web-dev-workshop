@@ -514,8 +514,9 @@ Now, we can add it to `CityWeatherContainer`:
 +import WeatherForecastError from "./WeatherForecastError";
 
  type CityWeatherContainerProps = {
-   city: string;
-@@ -10,24 +11,15 @@ type CityWeatherContainerProps = {
+   city: string,
+ }
+
  export default function CityWeatherContainer({
    city,
  }: CityWeatherContainerProps) {
