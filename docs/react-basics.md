@@ -1,14 +1,14 @@
 # React Basics
 
-Let's learn basics of react by trying to make something little bit more useful.
+Let's learn the basics of react by trying to make something little bit more useful. We will be making a weather application!
 
 - Rename `src/components/MyComponent.tsx` file to `src/components/WeatherForecast.tsx`
 - Rename the function name from `MyComponent` to `WeatherForecast`.
-- Update the import to it from `src/App.tsx`.
-- Clean up `src/App.tsx` remove the code we won't use.
-- Change usage of `MyComponent` in jsx to `WeatherForecast`.
+- Update the import of the component in `src/App.tsx`.
+- Clean up `src/App.tsx` by removing the React example code we don't need.
 
 Then your "src/components/WeatherForecast.tsx" should look like this
+
 ```tsx
 export default function WeatherForecast() {
   return null; // Returning null means we show "nothing"
@@ -16,6 +16,7 @@ export default function WeatherForecast() {
 ```
 
 And your **src/App.tsx** should look like this;
+
 ```tsx
 import "./App.css";
 import WeatherForecast from "./components/WeatherForecast"; // This used to be MyComponent
@@ -35,12 +36,11 @@ function App() {
 export default App;
 ```
 
-when we go to [localhost:8000](https://localhost:8000) we should se a page like this.
+When we go to [localhost:8000](https://localhost:8000) we should see a page like this.
 
 ![start](assets/react-basics-start.png)
 
-
-Let's go back to `WeatherForecast.tsx` and show some arbitrary weather forecast.
+Let's go back to `WeatherForecast.tsx` and show some arbitrary weather forecasts.
 
 ```tsx
 import "./WeatherForecast.css";
@@ -56,7 +56,7 @@ export default function WeatherForecast() {
 }
 ```
 
-Also add a new CSS file `WeatherForecast.css` next to `WeatherForecast.tsx`. And add the styles below; 
+Create a new CSS file `WeatherForecast.css` next to `WeatherForecast.tsx` and add the styles below to the .css file:
 
 ```css
 .weather-forecast {
@@ -84,28 +84,28 @@ Also add a new CSS file `WeatherForecast.css` next to `WeatherForecast.tsx`. And
 }
 ```
 
-Vite knows how to collect all the css we used and bundle into single js and css files.
-When you browse `localhost:8000` it should look like this
+Vite knows how to collect all the css we've used and bundle it into single js and css files.
+When you browse `localhost:8000` it should look like this:
 
 ![static weather](assets/weather-component-static.png)
 
 ## Using props
 
-Let's say if we wanted to show another place's weather also without copy pasting the code in `WeatherForecast` component.
+Let's say we'd like to show another locations weather without copy pasting the code in `WeatherForecast` component. How would we achieve this?
 
-We can supply some variable data the component. And in the component we can read them and show them dynamically. This is called passing props. Props are as in properties of a function.
+We can supply some variable data to the component and read the variables to show them dynamically. This is called passing props. Props are properties of a function.
 
-React is fundamentally a ui renderer that is similar to a math function that takes data as a parameter and outputs ui as a result
+React is fundamentally a UI renderer similar to a math function that takes data as an input and outputs UI as a result.
 
 `F(DATA) -> UI`
 
-In this case `F` is our component. Data is the `props` and `UI` is what the component shows when it is used in the layout.
+In this case `F` is our component. Data is the `props` and `UI` is what the component looks like when it is used in the layout.
 
 ### Sending in values
 
 Let's modify the `WeatherForecast` function so that it can take props.
 
-We add a new type `WeatherForecastProps` then use it as the type of the parameter that the function takes, which is our component.
+We add a new type `WeatherForecastProps` and use it as the type of the parameter which our function, here our component, takes.
 
 ```tsx
 import "./WeatherForecast.css";
@@ -130,7 +130,7 @@ export default function WeatherForecast(props: WeatherForecastProps) {
 }
 ```
 
-And then we modify `src/App.tsx` so that we supply the parameters (props) to `WeatherForecast` function (component).
+Next we modify `src/App.tsx` so that we supply the parameters (props) to `WeatherForecast` function (component).
 
 ```diff
   ...
@@ -146,7 +146,7 @@ And then we modify `src/App.tsx` so that we supply the parameters (props) to `We
   ...
 ```
 
-Now that our component is configurable with props. We can reuse same code and styles for displaying other cities. Let's add 2 other cities.
+Now that our component is configurable with props, we can reuse the component code and styles for displaying other cities. Let's add 2 other cities.
 
 ```diff
  ...
@@ -173,13 +173,14 @@ Now that our component is configurable with props. We can reuse same code and st
  ...
 ```
 
-Now `localhost:8000` should look like this.
+Now `localhost:8000` should look like this:
 
 ![multiple-1](assets/static-weather-multiple.png)
 
 Let's add some styles so it looks bit nicer.
 
 Add this class to the end of `App.css`
+
 ```css
 .forecasts-container {
   display: flex;
@@ -190,7 +191,7 @@ Add this class to the end of `App.css`
 }
 ```
 
-And also in `App.tsx`
+Also add to `App.tsx` the css className.
 
 ```diff
  ...
@@ -204,25 +205,23 @@ _    <div>
   ...
 ```
 
-Now we should see that they got smaller and displayed next to each other.
-Notice that we didn't modify the font sizes in the classes of `WeatherForecast.css` yet they got smaller because we gave containing `forecasts-container` the font-size of `0.5em`. This is the expected behavior of css because `em` and values are relative to their containers. If we set particular `px` (pixel) values this wouldn't happen.
+Now we should see that the location blocks got smaller and are now displayed next to each other.
+Notice that we didn't modify the font sizes in the classes of `WeatherForecast.css` yet. The reason they got smaller is because we gave containing `forecasts-container` the font-size of `0.5em`. This is the expected behavior of `em` so that the values are relative to their containers. If we set a particular `px` (pixel) value, this wouldn't happen as the text size wouldn't be relative.
 
-This is an anti-pattern though. Wanted to show you what happens if you that it has an effect if you set a font-size to a parent element. If the children have relative sizes. We normally don't do this. It achieved the look we wanted in this case but soon later we will do re-do this more properly.
+Normally, we use a [CSS feature called flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox) is used to alter relative sizes of elements, but for demonstration purposes we've used `em` here. We will learn more about proper ways of CSS later on the course.
 
 ![horizontal](assets/static-forecasts-horizontal.png)
 
 ### Sending in callbacks
 
-Say we wanted the component to tell us when we clicked on it. We can implement this using callbacks.
-Callbacks are regular functions passed in as props just like how we passed in values of city, temperature, icon etc. So when we pass a reference of a function to a component. The component can call this function so the function gets executed at the sender's side.
+Say we wanted the component to somehow alert us when it has been clicked. We can implement this by using callbacks.
+Callbacks are regular functions passed in as props just like how we passed in values of cities, temperatures and icons. When a reference of a function is passed to a component, the component calls the function and the function is executed at the sender's side.
 
-So in our case we will add a `onClick` prop to our `WeatherForecast` component. Then send the function from `App` root component.
+In our case, we will add an `onClick` prop to our `WeatherForecast` component. This way the `onClick` callback function is sent from the `App` root component to the`WeatherForecast` component and is executed at the `App`.
 
-This is kind of like, saying "tell me when I should know about something" to `WeatherForecast` component.
+This is kind of like, saying "Hey, alert me when there's something going on" to the `WeatherForecast` component. For now, let's simply log a click to the console.
 
-We can add `onClicked` to the type of the prop argument of the `WeatherForecast`
-
-then pass it as an event handler to root element of the component.
+We can add the `onClick` to the type of the prop argument of the `WeatherForecast` and pass it as an event handler to the root element of the component as so:
 
 ```diff
  ...
@@ -233,7 +232,7 @@ then pass it as an event handler to root element of the component.
    icon: string;
 +  onClick: (city: string) => void;
  };
- 
+
  export default function WeatherForecast(props: WeatherForecastProps) {
 +  const handleOnClick = () => {
 +    console.log(props.city + " clicked");
@@ -246,13 +245,13 @@ then pass it as an event handler to root element of the component.
   ...
 ```
 
-Browse to `localhost:8000` and reveal the javascript console (option + cmd + j on mac). Then try clicking on the city components, you should see these logs appearing.
+Browse to `localhost:8000` and reveal the javascript console (option + cmd + j on mac). Try then clicking on the city components and you should see these logs appearing.
 
 ![clicking things](assets/onclick-handler.png)
 
-Let's have the `App` root component be aware of this. Let's add the function callback value there.
+Next, we will add the `onClick` callback to the `App` root component so that the `onClick` callback function can be handled at the `App` root component's side.
 
-in **src/App.tsx** we create the handler function. Then pass it along to each implementation of `WeatherForecast` component;
+In **src/App.tsx** let's create the handler function and pass it along to each implementation of the `WeatherForecast` component;
 
 ```diff
  function App() {
@@ -290,9 +289,9 @@ in **src/App.tsx** we create the handler function. Then pass it along to each im
  }
 ```
 
-Now `App` parent component is given callback functions as props and it is expecting `WeatherForecast` instances to call it. We need to add the like that calls the callback function coming as a prop.
+Now the `App` parent component is given the callback functions as props and it is expecting `WeatherForecast` instances to call them. Let's implement the functionality that calls the callback function coming as a prop.
 
-in **src/components/WeatherForecast.tsx** we replace the console log with prop function call. We pass the city as a parameter so `App` knows which city was clicked;
+In **src/components/WeatherForecast.tsx** replace the console logging with a prop function call. We pass a city as a parameter so that `App` gets which city was clicked:
 
 ```diff
 ...
@@ -305,12 +304,13 @@ in **src/components/WeatherForecast.tsx** we replace the console log with prop f
  ...
 ```
 
-If you try clicking on the cities again you will see the same console logs appearing, but now they are logged from the root component.
+If you try clicking on the cities again you will see the same console logs appearing, but now they are logged from the `App` root component.
 
 ## Using the state hook
 
-Let's keep track of which city was clicked and show if above them.
-In **App.tsx** add a new subtitle above the forecast components, below the title.
+Let's keep track of which city was clicked by visualizing the choice.
+
+In **App.tsx** add a new subtitle above the forecast components and below the title.
 
 ```diff
 ...
@@ -320,41 +320,44 @@ In **App.tsx** add a new subtitle above the forecast components, below the title
 ...
 ```
 
-To keep track of things in react we use the **"state hook"**. It is a special function provided by react library that we can use in our components. When implemented it looks like this;
+To keep track of things in React, we use the **"state hook"**. It is a special function provided by the React library that we can use in our components. When implemented it looks like this:
 
 ```js
 // javascript
-const [value, updateValue] = useState(initialValue)
+const [value, updateValue] = useState(initialValue);
 ```
 
-value: is the current value of this state
-updateValue: is a function that we call to set a different value to the state
-calling `useState(initialValue)` keeps track of the current state and **trigger a re-render of the component only when the value gets updated**
+value: is the current value of the state
 
-This means that we don't need to check the current value in a loop or register and event listener. When we use the state hook React is smart to know when it needs to re-paint the screen.
+updateValue: is a function that we call to set a different value to the state
+
+Calling `useState(initialValue)` keeps track of the current state and **triggers a re-render of the component only when the value gets updated**.
+
+This means we don't need to check the current value in a loop or register an event listener. When we use the state hook React is smart enough to know when it needs to re-paint the screen.
 
 In our case;
+
 ```ts
 // typescript
-const [selectedCity, updateSelectedCity] = useState<string | null>(null)
+const [selectedCity, updateSelectedCity] = useState<string | null>(null);
 ```
 
-We put `null` as `initialValue` because we don't know which city is selected yet.
-Let's implement this in `App.tsx`
+We put `null` as `initialValue` because no city is selected yet.
+Let's implement this in `App.tsx`:
 
 ```diff
  import "./App.css";
 +import { useState } from "react";
  import WeatherForecast from "./components/WeatherForecast";
- 
+
  function App() {
 +  const [selectedCity, updateSelectedCity] = useState<string | null>(null);
- 
+
    const handleOnForecastCityClicked = (city: string) => {
 -    console.log(city + " clicked");
 +    updateSelectedCity(city);
    };
- 
+
    return (
      <>
        <h1>Starship Web Dev Workshop</h1>
@@ -366,8 +369,8 @@ Let's implement this in `App.tsx`
  ...
 ```
 
-Now when we open `localhost:8000` and click on the cities we should see that value next to "Selected city" changes
-
-https://github.com/eralpship/web-dev-workshop/assets/106536625/b9fc6dc2-d745-4527-b8e4-6b6943175322
+Now when we open `localhost:8000` and click on the cities we should see the value next to "Selected city" change.
 
 Checkout the branch `react-basics` for the latest state of the files.
+
+https://github.com/eralpship/web-dev-workshop/assets/106536625/b9fc6dc2-d745-4527-b8e4-6b6943175322

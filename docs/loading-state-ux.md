@@ -2,11 +2,9 @@
 
 ## Composing & reusing data
 
-need to handle the state when we don't have data
+Before we have clicked on a city our UI is looking a little odd with no weather data. We need to handle a state without data.
 
-let's first make weatherforecast accept null values
-
-We will do something better later but for now instead rendering nothing when values are `null` we can render some fallback strings
+First we'll make WeatherForecast accept null values. Again, later we will improve our solution, but for now instead of rendering nothing when values are `null` we can render some fallback strings
 
 for icon "️🤷‍♀️"
 for temperature "🤔"
@@ -23,7 +21,7 @@ for description "🤷‍♂️"
 +   icon: string | null;
     onClick: (city: string) => void;
   };
-  
+
   export default function WeatherForecast(props: WeatherForecastProps) {
     const handleOnClick = () => {
       props.onClick(props.city);
@@ -42,21 +40,20 @@ for description "🤷‍♂️"
   }
 ```
 
-![default values](assets/default-forecast-values.png) 
+![default values](assets/default-forecast-values.png)
 
-now weatherforecast accepets null values
-check App.tsx squigglies gone
+Now WeatherForecast accepts null values and the red squiggle errors in App.tsx are gone, but we are still showing default values instead of a loading state.
 
-but we still show default values when loading
-we should show a loading state instead
+Let's make a new component with these elements;
 
-let's make a new component that composes these elements;
 - loading of the data
 - displaying loading state
 - displaying errors
 - displaying weather conditions
 
-src/components/CityWeatherContainer.tsx
+Create a new file in the path `src/components/CityWeatherContainer.tsx` and place the following inside the new file:
+
+**src/components/CityWeatherContainer.tsx**
 
 ```tsx
 import useWeatherConditions from "../hooks/useWeatherConditions";
@@ -84,11 +81,11 @@ export default function CityWeatherContainer({
 }
 ```
 
-now we can delete a lot of code. and reuse the new `CityWeatherContainer` we created instead. It composes all the functionality we are deleteting from `App.tsx` already per each city.
+Now we can delete a lot of code and reuse the new `CityWeatherContainer` we created instead! The new component composes all the functionality we are deleting from `App.tsx` per each city.
 
-Let's implement our new component `CityWeatherContainer` for each city and delete all the code we won't use anymore.
+Let's implement our new component `CityWeatherContainer` for each city and delete all the code we won't be using anymore.
 
-src/App.tsx
+**src/App.tsx**
 
 ```diff
   import "./App.css";
@@ -96,13 +93,13 @@ src/App.tsx
 - import WeatherForecast from "./components/WeatherForecast";
 - import useWeatherConditions from "./hooks/useWeatherConditions";
   import CityWeatherContainer from "./components/CityWeatherContainer";
-  
+
   function App() {
 -   const [selectedCity, updateSelectedCity] = useState<string | null>(null);
 -   const helsinkiWeather = useWeatherConditions("helsinki");
 -   const londonWeather = useWeatherConditions("london");
 -   const melbourneWeather = useWeatherConditions("melbourne");
-- 
+-
 -   const handleOnForecastCityClicked = (city: string) => {
 -     if (city.toLowerCase() === "helsinki") {
 -       helsinkiWeather.reload();
@@ -115,7 +112,7 @@ src/App.tsx
 -     }
 -     updateSelectedCity(city);
 -   };
-  
+
     return (
       <>
         <h1>Starship Web Dev Workshop</h1>
@@ -149,11 +146,11 @@ src/App.tsx
       </>
     );
   }
-  
+
   export default App;
 ```
 
-resulting code would be this, much neater & shorter.
+Resulting in much neater & shorter code:
 
 **src/App.tsx**
 
@@ -179,8 +176,7 @@ export default App;
 
 ## Loading state
 
-
-Let's make a component for the loading state
+Next we'll make a component for the loading state. Again, create a new file for a new component.
 
 **src/components/WeatherForecastLoading.tsx**
 
@@ -194,11 +190,8 @@ export default function WeatherForecastLoading() {
 }
 ```
 
-in `useWeatherConditions`
-
-**src/hooks/useWeatherConditions.tsx**
-
-using the `useState` hook for keeping track of the loading state and updating it accordingly when loading starts and ends
+Inside the `useWeatherConditions` in
+**src/hooks/useWeatherConditions.tsx** create a loading state by using the `useState` hook. It will keep track of the loading state and updates it accordingly when loading starts and ends.
 
 ```diff
  export default function useWeatherConditions(city: string) {
@@ -206,20 +199,20 @@ using the `useState` hook for keeping track of the loading state and updating it
    const [weatherIcon, setWeatherIcon] = useState<string | null>(null);
    const [temperature, setTemperature] = useState<number | null>(null);
 +  const [loading, setLoading] = useState(false);
- 
+
    const reload = async () => {
 +    setLoading(true);
      const citySearchResponse = await fetch(
- 
+
      ...
- 
+
      setWeatherText(weatherText);
      setWeatherIcon(weatherIcon);
      setTemperature(temperature);
- 
+
 +    setLoading(false);
    };
- 
+
    return {
      weatherText,
      weatherIcon,
@@ -230,7 +223,7 @@ using the `useState` hook for keeping track of the loading state and updating it
  }
 ```
 
-Implement this new `loading` property that `useWeatherConditions` in `CityWeatherContainerProps` 
+Implement the new `loading` property from `useWeatherConditions` in `CityWeatherContainerProps`:
 
 **src/components/CityWeatherContainer.tsx**
 
@@ -238,22 +231,22 @@ Implement this new `loading` property that `useWeatherConditions` in `CityWeathe
   import useWeatherConditions from "../hooks/useWeatherConditions";
   import WeatherForecast from "./WeatherForecast";
 + import WeatherForecastLoading from "./WeatherForecastLoading";
- 
+
   type CityWeatherContainerProps = {
     city: string;
   };
- 
+
   export default function CityWeatherContainer({
     city,
   }: CityWeatherContainerProps) {
 -   const { reload, weatherIcon, weatherText, temperature } =
 +   const { reload, weatherIcon, weatherText, temperature, loading } =
       useWeatherConditions(city);
- 
+
 +   if (loading) {
 +     return <WeatherForecastLoading />;
 +   }
- 
+
     return (
       <WeatherForecast
         city={city}
@@ -266,46 +259,45 @@ Implement this new `loading` property that `useWeatherConditions` in `CityWeathe
   }
 ```
 
-When you go to `localhost:8000` and click on cities you will see them turn into ⏳ for a split second.
+When you go to `localhost:8000` and click on cities, you will see them turn into an ⏳ for a split second.
 
 ![loading state](assets/loading-state.jpg)
 
-With our fast connections it's difficult to see it happen so we can add some network throttling.
-In chrome and similar browsers. go to javascript developer console. Switch to network tab. Click "no throttling", change it to "Fast 3G".
+With our fast connections it's difficult to see it happen so for demonstration purposes we can add some network throttling.
+In Chrome, or another browser, go to javascript developer console. Switch to the network tab. Click "no throttling" and change it to "Fast 3G".
 
 ![throttling off](assets/throttling-off.png)
 
 ![throttling on](assets/throttling-on.png)
 
-While you are there also enable "Disable cache" so that every time we click, data gets re-fetched. However this is a fast way to eat up all of our accuweather api limits so beware. If you hit 50 API calls limit. Delete & recreate accuweather app from the console to get a new API key.
+While we are here, let's also enable "Disable cache" so that every time we click, data gets re-fetched. However, this is a fast way to eat up all of our accuweather api limits so be mindful of how many calls you send. If you hit the 50 API calls limit, delete & recreate accuweather app from the console to get a new API key.
 
-**Turn caching back on** when you experiment with the loading state so that we don't eat too much from our api call limit
+**Turn caching back on** when your experiment with the loading state is done.
 
 ![disable cache](assets/disable-cache.png)
 
 ## Loading all cities at the beginning
 
-Let's load all the forecasts automatically when page appears so that we don't have to click to initiate loading.
+Wouldn't it be nicer to see weather data right as we enter our app? Let's load all the forecasts automatically when the page appears so that we don't have to click to initiate loading.
 
 We can use `useEffect` and `useState` hooks from React in `useWeatherConditions` to achieve this.
 
-Before implementing `useEffect` first we need to wrap `reload` function with `useCallback` hook. So that we tell react to never recreate this function unless something really important changes.
+Before implementing `useEffect`, we first need to wrap the `reload` function with a `useCallback` hook so that we tell React to never recreate this function unless something really important changes.
 
-A basic `useCallback` implementation looks like this
+A basic `useCallback` implementation looks like this:
 
 ```tsx
 const myCallback = useCallback(() => {
   // your callback handler code here
-}, [dependency, anotherDependency])
+}, [dependency, anotherDependency]);
 ```
 
-This `myCallback` will only created when the `dependency` and `otherDependency` have new values.
+This `myCallback` will only be created when the `dependency` and `otherDependency` have new values.
 
-In our case `reload` callback only needs the dependency `city`. `reload` will need to do something different only when `city` has a different value. Otherwise it should remain the same.
+In our case, the `reload` callback only needs the dependency `city`. `reload` will need to do something different only when `city` has a different value. Otherwise it should remain the same.
+For this we use the `useEffect` hook. Similar to `useCallback`, a `useEffect` hook also takes a function and a dependencies list. It will execute the function only when its dependencies change.
 
-Then we can add `useEffect` hook. Similar to `useCallback`, `useEffect` hook also takes a function and a dependencies list. It will execute the function that has only when its dependencies change.
-
-`useEffect` implementation looks like this. 
+`useEffect` implementation looks like this:
 
 ```tsx
 useEffect(() => {
@@ -316,11 +308,12 @@ useEffect(() => {
 `city` value only changes once.
 `reload` value from `useCallback` only changes once.
 
-(if we didn't wrap reload function from earlier then it would get recreated every time this component code runs. When we'd use reload in useEffect it would cause an infinite loop. Because useEffect has it as a dependency. And runs its own callback whenever dependencies change.)
+(Note: If we wouldn't wrap the reload function from earlier, it would get recreated every time the component code runs. Using reload in useEffect would cause an infinite loop, because useEffect has it as a dependency and runs its own callback whenever the dependencies change.)
 
 These changes should happen at the same time when the app appears so we expect `reload()` to be called once.
 
 **src/hooks/useWeatherConditions**
+
 ```diff
 - import { useState } from "react";
 + import { useCallback, useEffect, useState } from "react";
@@ -357,19 +350,18 @@ You can go to `localhost:8000` and reload. You should see the city forecasts loa
 
 ## About react's strict mode.
 
-API calls won't happen as we expected though. When you refresh the page then if you look at browser's network tab of developer console.
-You'll see more than 6 api calls made. 12 to be exact. Let's see why is that.
+When you refresh the page and look at the network tab of the browser's developer console, you'll find that API calls aren't happening as we expected. More than 6 api calls are made, 12 to be exact. Why is that?
 
-[dupe api calls](assets/dupe-api-calls.png)
+[Dupe api calls](assets/dupe-api-calls.png)
 
-We were expecting only 6 because. We search 3 cities to get their city keys. Then we fetch the current weather conditions with the keys we acquired per each 3 city. So that should add up to 6.
+We are only expecting 6 API calls because we first search for the 3 cities to get their city keys and we then fetch the 3 weather conditions with the keys.
 
 But we see 12 api calls. The cause of this is [React's strict mode](https://react.dev/reference/react/StrictMode).
 
 If you check `main.tsx` file, you'll see. `<App />` is wrapped with `<React.StrictMode>`.
-Removing them would disable the strict mode.
+Removing the wrappers would disable the strict mode.
 
-You can try to remove them then refresh the page.
+You can try to remove them and refreshing the page.
 
 ```diff
   ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -381,14 +373,12 @@ You can try to remove them then refresh the page.
 
 You should now see that we get 6 requests as we expected before.
 
-But we should keep the strict mode on so put back the removed `<React.StrictMode>` tags.
+Strict mode is only applied for development mode, so let's put back the removed `<React.StrictMode>` tags. Our production app would make 6 requests instead of 12.
 
-Strict mode is only applied for development mode. Our production app would make 6 requests instead of 12.
+Strict mode is React's own development tool that executes code to analyze what changes it makes and generates warnings when required. React executes our `useEffect` functions once for analysis and then it is triggered because the dependencies are set. In the network logs it looks like as if we're doubling the amount of `reload()` function calls.
 
-Strict mode is react's own development tool that executes code to analyze what changes it makes and generate warnings when required. That's why it tries to execute our `useEffect` functions once for analysis. Then we trigger it because dependencies are set. So looks like as if we called it twice. Therefore doubles the amount of `reload()` function calls in them.
+In normal cases you can safely ignore this. Especially when updating some UI only values etc. Since we are triggering API calls with a limit to Accuweather, we'll now implement this properly without wasting API calls.
 
-In normal cases you can safely ignore this. Especially when you update some UI only values etc. But since we are triggering API calls we don't want to increase them for no reason. Since we have an API call limit with accuweather we have to fix implement it properly.
-
-Using `useEffect` to make api calls might seem like it works fine. But it is in fact an anti-pattern.
+Using `useEffect` to make API calls might seem like it works fine, but it is in fact an anti-pattern.
 
 Next step we'll learn how to fix this properly using `react-query`.
