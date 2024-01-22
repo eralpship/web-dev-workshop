@@ -5,24 +5,32 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server:dev": "nodemon --watch src/server --ext ts,json --exec \"vite-node src/server/server.ts\"",
+    "server:codegen": "graphql-codegen --config codegen.ts",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@apollo/server": "^4.10.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.15.5",
     "@mui/material": "^5.15.5",
     "@tanstack/react-query": "^5.17.15",
+    "graphql": "^16.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.12",
     "react-router-dom": "^6.21.3"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/typescript": "4.0.1",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1",
     "@tanstack/eslint-plugin-query": "^5.17.7",
+    "@types/node": "^20.11.5",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
@@ -31,7 +39,9 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "nodemon": "^3.0.3",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vite-node": "^1.2.1"
   }
 }
