@@ -1,4 +1,5 @@
 import Paper from "@mui/material/Paper";
+import Skeleton from "@mui/material/Skeleton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -8,7 +9,7 @@ import TableRow from "@mui/material/TableRow";
 
 type CommonTableProps<T> = {
   rows: T[];
-  onRowClicked: (row: T) => void;
+  onRowClicked?: (row: T) => void;
   columnHeaders: React.ReactNode[];
   cellsForRow: (row: T) => { key: string; cells: React.ReactNode[] };
 };
@@ -44,7 +45,7 @@ export function CommonDataTable<T>({
               <TableRow
                 hover
                 key={key}
-                onClick={() => onRowClicked(rows[index])}
+                onClick={() => onRowClicked?.(rows[index])}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 {cells.map((cell, index) => (
@@ -64,3 +65,22 @@ export function CommonDataTable<T>({
     </TableContainer>
   );
 }
+
+CommonDataTable.Skeleton = function CommonDataTableSkeleton({
+  columnHeaders,
+}: {
+  columnHeaders: React.ReactNode[];
+}) {
+  return (
+    <CommonDataTable
+      rows={[{}]}
+      columnHeaders={columnHeaders}
+      cellsForRow={() => ({
+        key: "skeleton-row",
+        cells: columnHeaders.map((_, index) => [
+          <Skeleton key={index} variant="text" animation="wave" />,
+        ]),
+      })}
+    />
+  );
+};

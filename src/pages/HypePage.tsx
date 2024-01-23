@@ -10,15 +10,15 @@ export default function HypePage() {
       <Typography variant="h4" component="h2">
         Hypervisor Panel
       </Typography>
+      <Typography variant="h5" component="h3">
+        Service Areas
+      </Typography>
       <ErrorBoundary
         fallbackRender={({ error }) => (
           <Alert severity="error">{error.message}</Alert>
         )}
       >
-        <Suspense fallback={<div>Loading...</div>}>
-          <Typography variant="h5" component="h3">
-            Service Areas
-          </Typography>
+        <Suspense fallback={<ServiceAreaList.Skeleton />}>
           <ServiceAreaList />
         </Suspense>
       </ErrorBoundary>

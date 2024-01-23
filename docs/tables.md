@@ -387,5 +387,136 @@ const AllServiceAreasQuery = gql`
 `;
 ```
 
-Next we'll see about how we can implement `CommonDataTable` for SupportTicket's and Bot's.
+Later we'll see about how we can implement `CommonDataTable` for SupportTicket's and Bot's.
+
+## Table loading state.
+
+Would be also nice if we can still show a "skeleton" version of the table while it is loading. We can implement this using `Skeleton` components from MUI. We used them before in weather components.
+
+We can now make a generic loading state implementation of `CommonDataTable` which renders `Skeleton`s instead of values.
+
+We will create the component `CommonDataTableSkeleton` and assign it to `CommonDataTable` component. So that we can use it as `<CommonDataTable.Skeleton />`.
+
+This is another language feature which has nothing to do with React. Usually special implementations of components are defined this way. This is kind of name spacing for components.
+
+We should also make the `onRowClicked` optional because skeleton doesn't require items to be clicked.
+
+**src/components/CommonDataTable.tsx**
+
+```diff
+ import Paper from "@mui/material/Paper";
++import Skeleton from "@mui/material/Skeleton";
+ import Table from "@mui/material/Table";
+ import TableBody from "@mui/material/TableBody";
+ import TableCell from "@mui/material/TableCell";
+ ...
+ 
+ type CommonTableProps<T> = {
+   rows: T[];
+-  onRowClicked: (row: T) => void;
++  onRowClicked?: (row: T) => void;
+   columnHeaders: React.ReactNode[];
+   cellsForRow: (row: T) => { key: string; cells: React.ReactNode[] };
+ };
+               ...
+               <TableRow
+                 hover
+                 key={key}
+-                onClick={() => onRowClicked(rows[index])}
++                onClick={() => onRowClicked?.(rows[index])}
+                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+               >
+                 {cells.map((cell, index) => (
+     ...
+     </TableContainer>
+   );
+ }
++
++CommonDataTable.Skeleton = function CommonDataTableSkeleton({
++  columnHeaders,
++}: {
++  columnHeaders: React.ReactNode[];
++}) {
++  return (
++    <CommonDataTable
++      rows={[{}]}
++      columnHeaders={columnHeaders}
++      cellsForRow={() => ({
++        key: "skeleton-row",
++        cells: columnHeaders.map((_, index) => [
++          <Skeleton key={index} variant="text" animation="wave" />,
++        ]),
++      })}
++    />
++  );
++};
+```
+
+Then we can implement our new `CommonDataTable.Skeleton` at `ServiceAreaList` first, because it needs to now the table headers.
+
+```diff
+ import { ServiceArea } from "../generated/types/server";
+ import { CommonDataTable } from "./CommonDataTable";
+ 
++const TableColumnHeaders = ["Name", "ID", "Country"];
++
+ export default function ServiceAreaList() {
+   const {
+     data: { serviceAreas },
+     ...
+     <CommonDataTable
+       onRowClicked={(a) => console.log(a.name)}
+       rows={serviceAreas}
+-      columnHeaders={["Name", "ID", "Country"]}
++      columnHeaders={TableColumnHeaders}
+       cellsForRow={(serviceArea) => ({
+         key: serviceArea.id,
+         cells: [
+         ...
+   );
+ }
+ 
++ServiceAreaList.Skeleton = () => (
++  <CommonDataTable.Skeleton columnHeaders={TableColumnHeaders} />
++);
++
+ function countryCodeToFlag(countryCode: string) {
+   return String.fromCodePoint(
+     ...[...countryCode.toUpperCase()].map(
+```
+
+Similar to how we defined `CommonDataTable.Skeleton` we can define an implementation of the common skeleton for `ServiceAreaList`, as `ServiceAreaList.Skeleton`
+
+Then finally we can use `<ServiceAreaList.Skeleton />` in `HypePage` as Suspense fallback.
+
+And we can also move "Service Areas" title out of the suspense so it is rendered even when query is loading.
+
+**src/pages/HypePage.tsx**
+
+```diff
+       ...
+       <Typography variant="h4" component="h2">
+         Hypervisor Panel
+       </Typography>
++      <Typography variant="h5" component="h3">
++        Service Areas
++      </Typography>
+       <ErrorBoundary
+         fallbackRender={({ error }) => (
+           <Alert severity="error">{error.message}</Alert>
+         )}
+       >
+-        <Suspense fallback={<div>Loading...</div>}>
+-          <Typography variant="h5" component="h3">
+-            Service Areas
+-          </Typography>
++        <Suspense fallback={<ServiceAreaList.Skeleton />}>
+           <ServiceAreaList />
+         </Suspense>
+       </ErrorBoundary>
+```
+
+Go to `localhost:8000/hype` and refresh the page several times. You should be able to see the loading state skeleton.
+
+[hype page skeleton](assets/hype-table-skeleton.gif)
 

@@ -6,6 +6,8 @@ import {
 import { ServiceArea } from "../generated/types/server";
 import { CommonDataTable } from "./CommonDataTable";
 
+const TableColumnHeaders = ["Name", "ID", "Country"];
+
 export default function ServiceAreaList() {
   const {
     data: { serviceAreas },
@@ -17,7 +19,7 @@ export default function ServiceAreaList() {
     <CommonDataTable
       onRowClicked={(a) => console.log(a.name)}
       rows={serviceAreas}
-      columnHeaders={["Name", "ID", "Country"]}
+      columnHeaders={TableColumnHeaders}
       cellsForRow={(serviceArea) => ({
         key: serviceArea.id,
         cells: [
@@ -31,6 +33,10 @@ export default function ServiceAreaList() {
     />
   );
 }
+
+ServiceAreaList.Skeleton = () => (
+  <CommonDataTable.Skeleton columnHeaders={TableColumnHeaders} />
+);
 
 function countryCodeToFlag(countryCode: string) {
   return String.fromCodePoint(
