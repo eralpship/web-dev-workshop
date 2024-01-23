@@ -8,5 +8,7 @@
 - [Error handling and caching](docs/error-handling-caching.md)
 - [Improving design](docs/improving-design.md)
 - [Adding pages](docs//adding-pages.md)
+- [Consuming GraphQL APIs](docs/consuming-graphql-apis.md)
+- [Displaying data in tables](docs/tables.md)
 
 ![announcement](docs/assets/webdevday.gif)
