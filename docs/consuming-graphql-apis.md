@@ -67,8 +67,4 @@ We can write queries and mutations here which would run on our server. On the le
 
 ## Implementing the query client to our web app.
 
-
-
-
-
-
+`npm install @apollo/client graphql`
