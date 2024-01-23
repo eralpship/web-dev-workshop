@@ -1,13 +1,54 @@
 type Query {
-  books: [Book]
-}
-
-type Book {
-  id: ID!
-  title: String
-  author: String
+  bots(serviceAreaId: ID): [Bot]
+  serviceAreas: [ServiceArea]
+  serviceArea(id: ID!): ServiceArea
 }
 
 type Mutation {
-  addBook(title: String!, author: String!): Book
+  createSupportTicket(
+    botId: ID!
+    title: String!
+    issue: SupportTicketIssue!
+  ): SupportTicket
+  updateSupportTicketStatus(
+    id: ID!
+    status: SupportTicketStatus!
+  ): SupportTicket
+  assignBotToServiceArea(botId: ID!, serviceAreaId: ID!): Bot
+}
+
+type Bot {
+  id: ID!
+  name: String!
+  serviceAreaId: ID
+  operational: Boolean
+  supportTickets: [SupportTicket]
+}
+
+enum SupportTicketStatus {
+  OPEN
+  RESOLVED
+}
+
+enum SupportTicketIssue {
+  WHEEL_MISSING
+  LID_MISSING
+  FLAG_MISSING
+}
+
+type SupportTicket {
+  id: ID!
+  title: String!
+  botId: ID!
+  status: SupportTicketStatus!
+  issue: SupportTicketIssue!
+}
+
+type ServiceArea {
+  id: ID!
+  name: String!
+  countryCode: String!
+  latitude: Float!
+  longitude: Float!
+  bots: [Bot]
 }

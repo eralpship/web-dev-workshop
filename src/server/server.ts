@@ -1,14 +1,11 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { readFileSync } from "fs";
-import type { Book, Resolvers } from "../generated/types/server";
+import { SupportTicketStatus, type Resolvers } from "../generated/types/server";
 import { createDatabase } from "./database";
+import { ServerContext } from "./types";
 
 const db = await createDatabase();
-
-export interface ServerContext {
-  db: typeof db;
-}
 
 const typeDefs = readFileSync("./src/server/schema.graphql", {
   encoding: "utf-8",
@@ -16,19 +13,82 @@ const typeDefs = readFileSync("./src/server/schema.graphql", {
 
 const resolvers: Resolvers = {
   Query: {
-    books: async (_, __, context) => {
-      const books = await context.db.selectFrom("book").selectAll().execute();
-      return books as Book[];
+    bots: async (_, __, context) => {
+      const bots = await context.db.selectFrom("bot").selectAll().execute();
+      return bots;
+    },
+    serviceAreas: async (_, __, context) => {
+      const serviceAreas = await context.db
+        .selectFrom("serviceArea")
+        .selectAll()
+        .execute();
+      return serviceAreas;
+    },
+    serviceArea: async (_, { id }, context) => {
+      const serviceArea = await context.db
+        .selectFrom("serviceArea")
+        .selectAll()
+        .where("id", "=", id)
+        .executeTakeFirstOrThrow();
+      return serviceArea;
+    },
+  },
+  Bot: {
+    operational: async (parent, _, context) => {
+      const supportTickets = await context.db
+        .selectFrom("supportTicket")
+        .select("id")
+        .where("botId", "=", parent.id)
+        .execute();
+
+      const hasSupportTickets = supportTickets.length > 0;
+      return !hasSupportTickets;
+    },
+    supportTickets: async (parent, _, context) => {
+      const supportTickets = await context.db
+        .selectFrom("supportTicket")
+        .selectAll()
+        .where("botId", "=", parent.id)
+        .execute();
+      return supportTickets;
+    },
+  },
+  ServiceArea: {
+    bots: async (parent, _, context) => {
+      const bots = await context.db
+        .selectFrom("bot")
+        .selectAll()
+        .where("serviceAreaId", "=", parent.id)
+        .execute();
+      return bots;
     },
   },
   Mutation: {
-    addBook: async (_, { author, title }, context) => {
-      const book = await context.db
-        .insertInto("book")
-        .values({ author, title })
+    createSupportTicket: async (_, { botId, title, issue }, context) => {
+      const supportTicket = await context.db
+        .insertInto("supportTicket")
+        .values({ botId, title, status: SupportTicketStatus.Open, issue })
         .returningAll()
         .executeTakeFirstOrThrow();
-      return book as Book;
+      return supportTicket;
+    },
+    updateSupportTicketStatus: async (_, { id, status }, context) => {
+      const supportTicket = await context.db
+        .updateTable("supportTicket")
+        .set({ status })
+        .where("id", "=", id)
+        .returningAll()
+        .executeTakeFirstOrThrow();
+      return supportTicket;
+    },
+    assignBotToServiceArea: async (_, { botId, serviceAreaId }, context) => {
+      const bot = await context.db
+        .updateTable("bot")
+        .set({ serviceAreaId })
+        .where("id", "=", botId)
+        .returningAll()
+        .executeTakeFirstOrThrow();
+      return bot;
     },
   },
 };
@@ -38,8 +98,14 @@ const server = new ApolloServer<ServerContext>({
   resolvers,
 });
 
+const mockServerResponseTime = () =>
+  new Promise((resolve) => setTimeout(resolve, 800));
+
 const { url } = await startStandaloneServer(server, {
-  context: async () => ({ db }),
+  context: async () => {
+    await mockServerResponseTime();
+    return { db };
+  },
   listen: { port: 4000 },
 });
 
