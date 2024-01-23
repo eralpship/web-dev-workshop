@@ -3,14 +3,19 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { Link } from "react-router-dom";
+import { Link, matchRoutes, useLocation } from "react-router-dom";
 
 const menuItems: { title: string; path: string }[] = [
   { title: "Home", path: "/" },
   { title: "Weather", path: "/weather" },
+  { title: "Hype", path: "/hype" },
 ];
 
 export default function PageHeader() {
+  const location = useLocation();
+  const matchingRoutes = matchRoutes(menuItems, location);
+  const matchingRoutePath = matchingRoutes?.[0]?.route?.path;
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -24,11 +29,17 @@ export default function PageHeader() {
             flexGrow: 1,
           }}
         >
-          Starship Web Dev Workshop
+          Web Dev Day
         </Typography>
         <Box>
           {menuItems.map((item) => (
-            <Button component={Link} to={item.path} key={item.title}>
+            <Button
+              component={Link}
+              to={item.path}
+              key={item.title}
+              disabled={item.path === matchingRoutePath}
+              sx={{ color: "inherit" }}
+            >
               {item.title}
             </Button>
           ))}

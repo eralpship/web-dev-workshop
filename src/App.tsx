@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import WeatherPage from "./pages/WeatherPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PageLayout from "./components/PageLayout";
+import HypePage from "./pages/HypePage";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<PageLayout />}>
             <Route index element={<HomePage />} />
             <Route path="weather" element={<WeatherPage />} />
+            <Route path="hype" element={<HypePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

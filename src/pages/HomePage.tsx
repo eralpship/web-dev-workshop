@@ -16,6 +16,9 @@ export default function HomePage() {
       >
         Weather
       </Button>
+      <Button component={Link} to="/hype" variant="contained" color="primary">
+        Hypervisor Panel
+      </Button>
     </>
   );
 }
