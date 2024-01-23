@@ -6,6 +6,7 @@ services:
     entrypoint: /bin/sh
     ports:
       - 8000:8000
+      - 4000:4000
     working_dir: /srv/app
     volumes:
       - type: bind
