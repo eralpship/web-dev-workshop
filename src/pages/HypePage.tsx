@@ -1,14 +1,8 @@
-import {
-  gql,
-  useSuspenseQuery as useApolloSuspenseQuery,
-} from "@apollo/client";
 import Alert from "@mui/material/Alert/Alert";
-import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { ServiceArea } from "../generated/types/server";
-import Box from "@mui/material/Box";
+import ServiceAreaList from "../components/ServiceAreaList";
 
 export default function HypePage() {
   return (
@@ -31,37 +25,3 @@ export default function HypePage() {
     </>
   );
 }
-
-function ServiceAreaList() {
-  const {
-    data: { serviceAreas },
-  } = useApolloSuspenseQuery<{ serviceAreas: ServiceArea[] }>(
-    AllServiceAreasQuery
-  );
-  return (
-    <Paper
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        padding: 2,
-      }}
-    >
-      <Box>{`id country name`}</Box>
-      {serviceAreas.map((serviceArea) => (
-        <Box key={serviceArea.id}>
-          {`${serviceArea.id} ${serviceArea.countryCode} ${serviceArea.name} `}
-        </Box>
-      ))}
-    </Paper>
-  );
-}
-
-const AllServiceAreasQuery = gql`
-  query AllServiceAreasQuery {
-    serviceAreas {
-      id
-      countryCode
-      name
-    }
-  }
-`;
