@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n \"frontend,server\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run frontend:dev\" \"npm run server:dev\"",
+    "frontend:dev": "vite",
     "server:dev": "nodemon --watch src/server --ext ts,json --exec \"vite-node src/server/server.ts\"",
     "server:codegen": "graphql-codegen --config codegen.ts",
     "build": "tsc && vite build",
