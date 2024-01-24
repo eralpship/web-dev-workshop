@@ -5,6 +5,7 @@ import {
 
 import { ServiceArea } from "../generated/types/server";
 import { CommonDataTable } from "./CommonDataTable";
+import { useNavigate } from "react-router-dom";
 
 const TableColumnHeaders = ["Name", "ID", "Country"];
 
@@ -15,9 +16,11 @@ export default function ServiceAreaList() {
     AllServiceAreasQuery
   );
 
+  const navigate = useNavigate();
+
   return (
     <CommonDataTable
-      onRowClicked={(a) => console.log(a.name)}
+      onRowClicked={(area) => navigate(`/hype/service-area/${area.id}`)}
       rows={serviceAreas}
       columnHeaders={TableColumnHeaders}
       cellsForRow={(serviceArea) => ({
