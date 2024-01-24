@@ -17,6 +17,14 @@ const resolvers: Resolvers = {
       const bots = await context.db.selectFrom("bot").selectAll().execute();
       return bots;
     },
+    bot: async (_, { id }, context) => {
+      const bot = await context.db
+        .selectFrom("bot")
+        .selectAll()
+        .where("id", "=", id)
+        .executeTakeFirstOrThrow();
+      return bot;
+    },
     serviceAreas: async (_, __, context) => {
       const serviceAreas = await context.db
         .selectFrom("serviceArea")
