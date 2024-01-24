@@ -3,14 +3,15 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Route, Routes, BrowserRouter } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import WeatherPage from "./pages/WeatherPage";
-import NotFoundPage from "./pages/NotFoundPage";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PageLayout from "./components/PageLayout";
+import HomePage from "./pages/HomePage";
 import HypePage from "./pages/HypePage";
-import ServiceAreasPage from "./pages/ServiceAreasPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import ServiceAreaDetailPage from "./pages/ServiceAreaDetailPage";
+import ServiceAreasPage from "./pages/ServiceAreasPage";
+import WeatherPage from "./pages/WeatherPage";
+import RobotsPage from "./pages/RobotsPage";
 
 const queryClient = new QueryClient();
 
@@ -23,11 +24,17 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path="weather" element={<WeatherPage />} />
             <Route path="hype/" element={<HypePage />}>
-              <Route index element={<ServiceAreasPage />} />
+              <Route index element={<Navigate to="service-areas" />} />
+              <Route
+                index
+                path="service-areas"
+                element={<ServiceAreasPage />}
+              />
               <Route
                 path="service-area/:id"
                 element={<ServiceAreaDetailPage />}
               />
+              <Route path="robots" element={<RobotsPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Route>

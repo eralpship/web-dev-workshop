@@ -11,5 +11,6 @@
 - [Consuming GraphQL APIs](docs/consuming-graphql-apis.md)
 - [Displaying data in tables](docs/tables.md)
 - [Detail pages & Path parameters](docs/detail-pages.md)
+- [GraphQL mutations](docs/graphql-mutations.md)
 
 ![announcement](docs/assets/webdevday.gif)
