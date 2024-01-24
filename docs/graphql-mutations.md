@@ -211,4 +211,120 @@ Now when you go to `localhost:8000/hype` you should be redirected to `/hype/serv
 
 ![robots page init](assets/robots-page-init.gif)
 
-You might have noticed that the robots we are listing don't have a service area assigned. We can make a page for assigning Robots to Service Aras.
+You might have noticed that the robots we are listing don't have a service area assigned. We can make a page for assigning Robots to Service Areas.
+
+We will create a `RobotDetailPage` where we can see the robot details, and modify which service area it is assigned to.
+
+Let's add a new route `/robot/:id`.
+
+**src/App.tsx**
+
+```diff
+ ...
+ import HomePage from "./pages/HomePage";
+ import HypePage from "./pages/HypePage";
+ import NotFoundPage from "./pages/NotFoundPage";
++import RobotDetailPage from "./pages/RobotDetailPage";
+ import ServiceAreaDetailPage from "./pages/ServiceAreaDetailPage";
+ import ServiceAreasPage from "./pages/ServiceAreasPage";
+ import WeatherPage from "./pages/WeatherPage";
+ 
+ const queryClient = new QueryClient();
+ 
+                 ...
+                 element={<ServiceAreaDetailPage />}
+               />
+               <Route path="robots" element={<RobotsPage />} />
++              <Route path="robot/:id" element={<RobotDetailPage />} />
+             </Route>
+             <Route path="*" element={<NotFoundPage />} />
+           </Route>
+
+```
+
+Create a `RobotDetails` page similar to `ServiceAreaDetails`.
+
+**src/components/RobotDetails.tsx**
+
+```tsx
+import { gql, useSuspenseQuery } from "@apollo/client";
+import Box from "@mui/material/Box";
+import { Bot } from "../generated/types/server";
+import TitleValueRow from "./TitleValueRow";
+
+export default function RobotDetails({ id }: { id?: string }) {
+  if (!id) {
+    throw new Error("Unknown robot ID");
+  }
+
+  const {
+    data: { bot: robot },
+  } = useSuspenseQuery<{ bot: Bot }>(ServiceAreaDetailsQuery, {
+    variables: { id },
+  });
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <TitleValueRow title="ID" value={robot.id} />
+      <TitleValueRow title="Name" value={robot.name} />
+      <TitleValueRow
+        title="Service Area"
+        value={robot.serviceAreaId ?? "Not Assigned"}
+      />
+      <TitleValueRow
+        title="Status"
+        value={robot.operational ? "Operational" : "Not Operational"}
+      />
+    </Box>
+  );
+}
+
+const ServiceAreaDetailsQuery = gql`
+  query RobotDetailsQuery($id: ID!) {
+    bot(id: $id) {
+      id
+      name
+      serviceAreaId
+      operational
+    }
+  }
+`;
+```
+
+Then to put all of these together create `RobotDetailPage` page component.
+
+**src/pages/RobotDetailPage.tsx**
+
+```tsx
+import Typography from "@mui/material/Typography";
+import { useParams } from "react-router-dom";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import Alert from "@mui/material/Alert";
+import RobotDetails from "../components/RobotDetails";
+
+export default function RobotDetailPage() {
+  const { id: robotId } = useParams();
+
+  return (
+    <>
+      <Typography variant="h5" component="h3">
+        Robot: {robotId}
+      </Typography>
+      <ErrorBoundary
+        fallbackRender={({ error }) => (
+          <Alert severity="error">{error.message}</Alert>
+        )}
+      >
+        <Suspense fallback={<>loading...</>}>
+          <RobotDetails id={robotId} />
+        </Suspense>
+      </ErrorBoundary>
+    </>
+  );
+}
+```
+
+Now when you go to `localhost:8000/hype/robots` you should be able to click on the rows. Clicking a row should take you to the details of that robot.
+
+![robot details page](assets/robot-details-page-1.png)

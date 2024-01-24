@@ -8,10 +8,11 @@ import PageLayout from "./components/PageLayout";
 import HomePage from "./pages/HomePage";
 import HypePage from "./pages/HypePage";
 import NotFoundPage from "./pages/NotFoundPage";
+import RobotDetailPage from "./pages/RobotDetailPage";
+import RobotsPage from "./pages/RobotsPage";
 import ServiceAreaDetailPage from "./pages/ServiceAreaDetailPage";
 import ServiceAreasPage from "./pages/ServiceAreasPage";
 import WeatherPage from "./pages/WeatherPage";
-import RobotsPage from "./pages/RobotsPage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ function App() {
                 element={<ServiceAreaDetailPage />}
               />
               <Route path="robots" element={<RobotsPage />} />
+              <Route path="robot/:id" element={<RobotDetailPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
