@@ -208,7 +208,7 @@ _    <div>
 Now we should see that the location blocks got smaller and are now displayed next to each other.
 Notice that we didn't modify the font sizes in the classes of `WeatherForecast.css` yet. The reason they got smaller is because we gave containing `forecasts-container` the font-size of `0.5em`. This is the expected behavior of `em` so that the values are relative to their containers. If we set a particular `px` (pixel) value, this wouldn't happen as the text size wouldn't be relative.
 
-Normally, we use a [CSS feature called flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox) is used to alter relative sizes of elements, but for demonstration purposes we've used `em` here. We will learn more about proper ways of CSS later on the course.
+Normally, we use a [CSS feature called flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox) to alter relative sizes of elements, but for demonstration purposes we've used `em` here. We will learn more about proper ways of CSS later on the course.
 
 ![horizontal](assets/static-forecasts-horizontal.png)
 
