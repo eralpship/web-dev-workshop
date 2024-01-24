@@ -178,3 +178,123 @@ Then we show the id in the layout next to the title.
 Now you can go to `localhost:8000/hype` to test our changes.
 
 ![service area detail](assets/service-area-detail.gif)
+
+Let's show the details of the service area in `ServiceAreaDetailPage` as well.
+
+We will see how we can add parameters to graphQL queries while doing this.
+
+First let's make a key-value pair display component that we can re-use. Let's call it `TitleValueRow`
+
+**src/components/TitleValueRow.tsx**
+
+```tsx
+import { Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+
+export default function TitleValueRow({
+  title,
+  value,
+}: {
+  title: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 1,
+      }}
+    >
+      <Typography sx={{ fontWeight: "bold" }}>{title}:</Typography>
+      <Typography>{value}</Typography>
+    </Box>
+  );
+}
+```
+
+Then make a `ServiceAreaDetails` component. In which we will fetch service area data from graphQL api with service area's id.
+
+**src/components/ServiceAreaDetails.tsx**
+
+```tsx
+import { gql, useSuspenseQuery } from "@apollo/client";
+import Box from "@mui/material/Box";
+import { ServiceArea } from "../generated/types/server";
+import TitleValueRow from "./TitleValueRow";
+
+export default function ServiceAreaDetails({ id }: { id?: string }) {
+  if (!id) {
+    throw new Error("Unknown service area ID");
+  }
+
+  const {
+    data: { serviceArea },
+  } = useSuspenseQuery<{ serviceArea: ServiceArea }>(ServiceAreaDetailsQuery, {
+    variables: { id },
+  });
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <TitleValueRow title="ID" value={serviceArea.id} />
+      <TitleValueRow title="Name" value={serviceArea.name} />
+      <TitleValueRow title="Country Code" value={serviceArea.countryCode} />
+    </Box>
+  );
+}
+
+const ServiceAreaDetailsQuery = gql`
+  query ServiceAreaDetailsQuery($id: ID!) {
+    serviceArea(id: $id) {
+      id
+      name
+      countryCode
+    }
+  }
+`;
+```
+
+And finally use it in the page component `ServiceAreaDetailPage`.
+
+I won't make skeleton component for the loading state in this case, we have seen how to make those before in `ServiceAreasPage`.
+
+Similar to other pages before, we wrap the `ServiceAreaDetails` component with `ErrorBoundary` and `Suspense`
+
+Only difference is that `ServiceAreaDetails` takes the service area `id` as prop.
+
+**src/components/ServiceAreaDetailPage.tsx**
+
+```diff
+ ...
+ import Typography from "@mui/material/Typography";
+ import { useParams } from "react-router-dom";
++import ServiceAreaDetails from "../components/ServiceAreaDetails";
++import { Suspense } from "react";
++import { ErrorBoundary } from "react-error-boundary";
++import Alert from "@mui/material/Alert";
+ 
+ export default function ServiceAreaDetailPage() {
+   const { id: serviceAreaId } = useParams();
+       ...
+       <Typography variant="h5" component="h3">
+         Service Area: {serviceAreaId}
+       </Typography>
++      <ErrorBoundary
++        fallbackRender={({ error }) => (
++          <Alert severity="error">{error.message}</Alert>
++        )}
++      >
++        <Suspense fallback={<>loading...</>}>
++          <ServiceAreaDetails id={serviceAreaId} />
++        </Suspense>
++      </ErrorBoundary>
+     </>
+   );
+ }
+```
+
+Now you should see the service area details showing at `localhost:8000/hype/service-area/1`
+
+![service area details component](assets/service-area-details-component.png)
