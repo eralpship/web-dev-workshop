@@ -1,6 +1,6 @@
 ## Create a new component
 
-React has a very good documentation page at [react.dev](https://react.dev). If you want to learn more in detail you can check there later. In this workshow let's dive in and learn by experimenting.
+React has a very good documentation page at [react.dev](https://react.dev). If you want to learn more in detail you can check there later. In this workshop let's dive in and learn by experimenting.
 
 Let's create our first component. React is all about building blocks aka components. You can either use components others have created or make your own ones. We can choose from React-dom's primitives or we can install 3rd party dependencies from npm. Let's try to make our own.
 
