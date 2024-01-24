@@ -2,6 +2,7 @@ import { gql, useSuspenseQuery } from "@apollo/client";
 import Box from "@mui/material/Box";
 import { Bot } from "../generated/types/server";
 import TitleValueRow from "./TitleValueRow";
+import AssignRobotDialog from "./AssignRobotDialog";
 
 export default function RobotDetails({ id }: { id?: string }) {
   if (!id) {
@@ -26,6 +27,7 @@ export default function RobotDetails({ id }: { id?: string }) {
         title="Status"
         value={robot.operational ? "Operational" : "Not Operational"}
       />
+      <AssignRobotDialog botId={id} />
     </Box>
   );
 }

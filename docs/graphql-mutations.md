@@ -328,3 +328,163 @@ export default function RobotDetailPage() {
 Now when you go to `localhost:8000/hype/robots` you should be able to click on the rows. Clicking a row should take you to the details of that robot.
 
 ![robot details page](assets/robot-details-page-1.png)
+
+We need an UI to be able to assign a robot to service area so let's create a Dialog.
+
+We can build a dialog using `Select` and `Dialog` components from MUI.
+
+**src/components/AssignRobotDialog.tsx**
+
+```tsx
+import { gql, useMutation } from "@apollo/client";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select/Select";
+import useTheme from "@mui/material/styles/useTheme";
+import useMediaQuery from "@mui/material/useMediaQuery/useMediaQuery";
+import { useState } from "react";
+
+const DefaultSelectValue = "not-assigned";
+
+export default function AssignRobotDialog({ botId }: { botId: string }) {
+  const [open, setOpen] = useState(false);
+
+  const [selectedServiceAreaId, setSelectedServiceAreaId] =
+    useState<string>(DefaultSelectValue);
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const [assignBotToServiceArea, { loading }] = useMutation(
+    AssignBotToServiceAreaMutation,
+    {
+      variables: {
+        botId,
+        serviceAreaId: selectedServiceAreaId,
+      },
+    }
+  );
+
+  const handleAssignConfirmed = async () => {
+    await assignBotToServiceArea();
+    handleClose();
+  };
+
+  return (
+    <>
+      <Button variant="outlined" onClick={handleClickOpen}>
+        Assign robot to service area
+      </Button>
+      <Dialog fullScreen={fullScreen} open={open} onClose={handleClose}>
+        <DialogTitle>Assign Robot {botId} To Service Area</DialogTitle>
+        <DialogContent sx={{ gap: 2 }}>
+          <DialogContentText>
+            Select a service area from below to assign the robot {botId} to.
+          </DialogContentText>
+          <Box>
+            <Select
+              disabled={loading}
+              value={selectedServiceAreaId}
+              onChange={(event) => setSelectedServiceAreaId(event.target.value)}
+              autoWidth
+            >
+              <MenuItem value={DefaultSelectValue} disabled>
+                <em>Select a service area</em>
+              </MenuItem>
+              <MenuItem value={"1"}>Helsinki</MenuItem>
+              <MenuItem value={"2"}>London</MenuItem>
+              <MenuItem value={"3"}>Melbourne</MenuItem>
+              <MenuItem value={"4"}>Tallinn</MenuItem>
+            </Select>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAssignConfirmed}
+            disabled={loading || selectedServiceAreaId === DefaultSelectValue}
+          >
+            Assign
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
+
+const AssignBotToServiceAreaMutation = gql`
+  mutation AssignBotToServiceArea($botId: ID!, $serviceAreaId: ID!) {
+    assignBotToServiceArea(botId: $botId, serviceAreaId: $serviceAreaId) {
+      id
+      serviceAreaId
+    }
+  }
+`;
+```
+
+I hardcoded our service areas into the code, for the sake of simplicity. But ideally we could make another query to our api to get the service area options.
+
+The essential part here is the `useMutation` hook from Apollo Client.
+
+```tsx
+const [assignBotToServiceArea, { loading }] = useMutation(
+  AssignBotToServiceAreaMutation,
+  {
+    variables: {
+      botId,
+      serviceAreaId: selectedServiceAreaId,
+    },
+  }
+);
+```
+
+When we call the `assignBotToServiceArea` it executes the mutation with `botId` and `serviceAreaId` parameters.
+
+```tsx
+const handleAssignConfirmed = async () => {
+  await assignBotToServiceArea();
+  handleClose();
+};
+```
+
+Next we use this new `AssignRobotDialog` in `RobotDetails` component.
+
+```diff
+ ...
+ import Box from "@mui/material/Box";
+ import { Bot } from "../generated/types/server";
+ import TitleValueRow from "./TitleValueRow";
++import AssignRobotDialog from "./AssignRobotDialog";
+ 
+ export default function RobotDetails({ id }: { id?: string }) {
+   if (!id) {
+         ...
+         title="Status"
+         value={robot.operational ? "Operational" : "Not Operational"}
+       />
++      <AssignRobotDialog botId={id} />
+     </Box>
+   );
+ }
+```
+
+Try assigning a robot to a service area at `localhost:8000/hype/robots`.
+
+![assign robots](assets/assign-robots.gif)
+
+Notice that when we update the service area value of a robot in the dialog, service area id automatically changes in the robot detail page as well.
+
+This is because mutation response updates the Apollo client cache. And the `useQuery` or `useSuspenseQuery` hooks get notified about the change and trigger a redraw of the UI.
+
+Therefore we don't need to manually re-fetch the UI just to get the updates.
