@@ -322,7 +322,7 @@ Add a link from `HomePage.tsx` to `/hype` route:
 
 Next, we will add a link to the page header at `PageHeader.tsx` so we have a link to `/hype` from the header as well.
 
-As we are here in `PageHeader.tsx` let's also keep track of which page we sre at by showing the selected page as `disabled`, a visualization to make it appear grayed out. For example, when we are at the `/weather` page the `Weather` button will be disabled and when we go to another page `Weather` button gets re-enabled.
+As we are here in `PageHeader.tsx` let's also keep track of which page we are at by showing the selected page as `disabled`, a visualization to make it appear grayed out. For example, when we are at the `/weather` page the `Weather` button will be disabled and when we go to another page `Weather` button gets re-enabled.
 
 We will implement this using the `useLocation` hook and a `matchRoutes` utility from React-Router. By comparing the current browser URL location and finding the route it matches with, we can disable the matching navigation button.
 
