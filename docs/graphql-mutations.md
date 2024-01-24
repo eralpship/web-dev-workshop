@@ -1,12 +1,12 @@
 # GraphQL Mutations
 
-We will look into how we can modify the data on the server by running GraphQL mutations. This is kind of doing POST requests to ask the server to change data in REST API terms.
+We will look into how we can modify the data on the server by running GraphQL mutations. This is equivalent of making POST requests to ask the server to change data in the REST API terms.
 
-First we will add a Robots page similar to Service Areas page. Display the list of Robots. Then assign them to Service Areas.
+First we will add a Robots page similar to the Service Areas page. Display the list of Robots and assign them to Service Areas.
 
-Also we will add a menu inside `Hype` route layout. So that we can switch between Service Areas and Robots pages.
+We will also add a menu inside `Hype` route layout so that we can switch between Service Areas and Robots pages.
 
-Let's start by adding the Robots route.
+Let's start by adding the Robots route:
 
 **src/App.tsx**
 
@@ -52,15 +52,11 @@ Let's start by adding the Robots route.
            </Route>
 ```
 
-We changed `ServiceAreasPage` to be a regular nested route under `/hype` route.
+We changed `ServiceAreasPage` to be a regular nested route under the `/hype` route. We then crated a new `service-areas` route and assigned `ServiceAreasPage` as it's element. This will be handled as `/hype/service-areas`.
 
-We crated a new `service-areas` route and assigned `ServiceAreasPage` as it's element. This will be handled as `/hype/service-areas`.
+After the changes there's no route to handle just `/hype`, it will end up in `*` route and `NotFoundPage` will be shown. To fix this we can create a nested `index` route under `/hype` and route it to `<Navigate to="service-areas">`. When a user goes to `/hype` path they will be redirected to `/hype/service-areas`.
 
-Since now after the changes there's no route to handle just `/hype`, it will end up in `*` route and `NotFoundPage` will be shown.
-
-To fix that we can create a nested `index` route under `/hype`, then route it to `<Navigate to="service-areas">`. When user goes to `/hype` path they will be redirected to `/hype/service-areas`.
-
-Then let's update the `HypePage` so that it has "Service Areas" and "Robots" buttons. Similar to how Header Menu works.
+Then, let's update the `HypePage` so that it has "Service Areas" and "Robots" buttons. Similarly to how we implemented Header Menu to work:
 
 **src/pages/HypePage.tsx**
 
@@ -108,7 +104,7 @@ Then let's update the `HypePage` so that it has "Service Areas" and "Robots" but
    );
 ```
 
-then we can create the `RobotList` component. Our implementation will be very similar to `ServiceAreaList`.
+Now we can create the `RobotList` component. Our implementation will be very similar to `ServiceAreaList`:
 
 **src/components/RobotList.tsx**
 
@@ -164,17 +160,17 @@ const AllRobotsQuery = gql`
 `;
 ```
 
-Mostly the same implementation  with `RobotList` with differences;
-- We fetch a different graphql query `bots {...}`.
-- We switch between `OperationalIcon` and `NotOperationalIcon` depending on `operational` value of the bot.
-- When bot row is clicked we send the user to `hype/bots/:id` which is not implemented yet.
-- If `serviceArea` value of a bot is not defined we show "Not Assigned" instead.
+What we have done are mostly the same implementations as with `RobotList` with these differences;
+- we fetch a different GraphQL query `bots {...}`
+- we switch between `OperationalIcon` and `NotOperationalIcon` depending on `operational` value of the bot
+- when a bot row is clicked, we send the user to `hype/bots/:id` (which is not implemented yet)
+- if the `serviceArea` value of a bot is not defined we show "Not Assigned" instead
 
-We will make an UI that we can assign robots to service areas later.
+We will make a UI that we can assign robots to service areas later.
 
-Final step to put all of this together is to implement this new `RobotList` component in a `RobotsPage` component. Similar to how `ServiceAreaList` and `ServiceAreasPage`.
+Final step to put all of this together is to implement the new `RobotList` component in a `RobotsPage` component. Similarly as how we implemented `ServiceAreaList` and `ServiceAreasPage`.
 
-Let's crate the `RobotsPage`.
+Let's crate the `RobotsPage`:
 
 **src/pages/RobotsPage.tsx**
 
@@ -205,17 +201,17 @@ export default function ServiceAreasPage() {
 }
 ```
 
-Implementation is very similar to `ServiceAreasPage`. We only didn't implement the skeleton for the loading state.
+Implementation is very similar to `ServiceAreasPage`, only the skeleton is missing from for the loading state.
 
-Now when you go to `localhost:8000/hype` you should be redirected to `/hype/service-areas`. Clicking "Robots" and "Service Areas" buttons should change the pages. Clicking the "Hypervisor Panel" should take you back to `/hype`.
+Now, when you go to `localhost:8000/hype` you should be redirected to `/hype/service-areas`. Clicking "Robots" and "Service Areas" buttons should change the pages. Clicking the "Hypervisor Panel" should take you back to `/hype`.
 
 ![robots page init](assets/robots-page-init.gif)
 
-You might have noticed that the robots we are listing don't have a service area assigned. We can make a page for assigning Robots to Service Areas.
+You might have noticed that the robots we are listing don't have a Service Area assigned. We can make a page for assigning Robots to Service Areas.
 
-We will create a `RobotDetailPage` where we can see the robot details, and modify which service area it is assigned to.
+We will create a `RobotDetailPage` where we can see the robot details, and modify which Service Area it is assigned to.
 
-Let's add a new route `/robot/:id`.
+Let's add a new route `/robot/:id`:
 
 **src/App.tsx**
 
@@ -291,7 +287,7 @@ const ServiceAreaDetailsQuery = gql`
 `;
 ```
 
-Then to put all of these together create `RobotDetailPage` page component.
+Then, to put all of these together create a `RobotDetailPage` page component:
 
 **src/pages/RobotDetailPage.tsx**
 
@@ -325,13 +321,13 @@ export default function RobotDetailPage() {
 }
 ```
 
-Now when you go to `localhost:8000/hype/robots` you should be able to click on the rows. Clicking a row should take you to the details of that robot.
+Now when you go to `localhost:8000/hype/robots` you should be able to click on the rows. Clicking a row should take you to the details of the selected robot.
 
 ![robot details page](assets/robot-details-page-1.png)
 
-We need an UI to be able to assign a robot to service area so let's create a Dialog.
+We need an UI to be able to assign a robot to a Service Area so let's create a Dialog.
 
-We can build a dialog using `Select` and `Dialog` components from MUI.
+We can build a dialog using `Select` and `Dialog` components from MUI:
 
 **src/components/AssignRobotDialog.tsx**
 
@@ -433,9 +429,9 @@ const AssignBotToServiceAreaMutation = gql`
 `;
 ```
 
-I hardcoded our service areas into the code, for the sake of simplicity. But ideally we could make another query to our api to get the service area options.
+I hardcoded our Service Areas into the code, for the sake of simplicity. Ideally we could make another query to our API to get the Service Area options.
 
-The essential part here is the `useMutation` hook from Apollo Client.
+The essential part here is the `useMutation` hook from Apollo Client:
 
 ```tsx
 const [assignBotToServiceArea, { loading }] = useMutation(
@@ -449,7 +445,7 @@ const [assignBotToServiceArea, { loading }] = useMutation(
 );
 ```
 
-When we call the `assignBotToServiceArea` it executes the mutation with `botId` and `serviceAreaId` parameters.
+When we call the `assignBotToServiceArea` it executes the mutation with `botId` and `serviceAreaId` parameters:
 
 ```tsx
 const handleAssignConfirmed = async () => {
@@ -479,12 +475,10 @@ Next we use this new `AssignRobotDialog` in `RobotDetails` component.
  }
 ```
 
-Try assigning a robot to a service area at `localhost:8000/hype/robots`.
+Try assigning a robot to a Service Area at `localhost:8000/hype/robots`.
 
 ![assign robots](assets/assign-robots.gif)
 
-Notice that when we update the service area value of a robot in the dialog, service area id automatically changes in the robot detail page as well.
-
-This is because mutation response updates the Apollo client cache. And the `useQuery` or `useSuspenseQuery` hooks get notified about the change and trigger a redraw of the UI.
+Notice when we update the Service Area value of a robot in the dialog, the Service Area ID automatically changes in the robot detail page as well. This is because mutation response updates the Apollo client cache. And the `useQuery` or `useSuspenseQuery` hooks get notified about the change and trigger a redraw of the UI.
 
 Therefore we don't need to manually re-fetch the UI just to get the updates.
