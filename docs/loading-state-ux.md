@@ -352,7 +352,7 @@ You can go to `localhost:8000` and reload. You should see the city forecasts loa
 
 When you refresh the page and look at the network tab of the browser's developer console, you'll find that API calls aren't happening as we expected. More than 6 api calls are made, 12 to be exact. Why is that?
 
-[Dupe api calls](assets/dupe-api-calls.png)
+![Dupe api calls](assets/dupe-api-calls.png)
 
 We are only expecting 6 API calls because we first search for the 3 cities to get their city keys and we then fetch the 3 weather conditions with the keys.
 

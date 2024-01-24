@@ -516,4 +516,4 @@ Finally, we can use `<ServiceAreaList.Skeleton />` in `HypePage` as Suspense fal
 
 Go to `localhost:8000/hype` and refresh the page several times. You should be able to see the loading state skeleton.
 
-[hype page skeleton](assets/hype-table-skeleton.gif)
+![hype page skeleton](assets/hype-table-skeleton.gif)
