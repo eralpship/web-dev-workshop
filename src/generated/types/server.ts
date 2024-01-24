@@ -54,9 +54,15 @@ export type MutationUpdateSupportTicketStatusArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  bot?: Maybe<Bot>;
   bots?: Maybe<Array<Maybe<Bot>>>;
   serviceArea?: Maybe<ServiceArea>;
   serviceAreas?: Maybe<Array<Maybe<ServiceArea>>>;
+};
+
+
+export type QueryBotArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -213,6 +219,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
 }>;
 
 export type QueryResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  bot?: Resolver<Maybe<ResolversTypes['Bot']>, ParentType, ContextType, RequireFields<QueryBotArgs, 'id'>>;
   bots?: Resolver<Maybe<Array<Maybe<ResolversTypes['Bot']>>>, ParentType, ContextType, Partial<QueryBotsArgs>>;
   serviceArea?: Resolver<Maybe<ResolversTypes['ServiceArea']>, ParentType, ContextType, RequireFields<QueryServiceAreaArgs, 'id'>>;
   serviceAreas?: Resolver<Maybe<Array<Maybe<ResolversTypes['ServiceArea']>>>, ParentType, ContextType>;
