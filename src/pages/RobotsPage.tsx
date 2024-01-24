@@ -2,7 +2,7 @@ import Alert from "@mui/material/Alert/Alert";
 import Typography from "@mui/material/Typography";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import ServiceAreaList from "../components/ServiceAreaList";
+import RobotList from "../components/RobotList";
 
 export default function ServiceAreasPage() {
   return (
@@ -15,8 +15,8 @@ export default function ServiceAreasPage() {
           <Alert severity="error">{error.message}</Alert>
         )}
       >
-        <Suspense fallback={<ServiceAreaList.Skeleton />}>
-          <ServiceAreaList />
+        <Suspense fallback={<div>loading...</div>}>
+          <RobotList />
         </Suspense>
       </ErrorBoundary>
     </>
