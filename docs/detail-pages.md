@@ -1,8 +1,10 @@
 # Detail pages & route parameters
 
+In this section we will be adding a detail page for the service areas.
+
 ## Adding a service area detail page
 
-Change `onClick` callback handler from `CommonDataTable` of `ServiceAreaList` so that it goes to path `/hype/service-area/1` if the clicked service area id is 1.
+Change the `onClick` callback handler from `CommonDataTable` of `ServiceAreaList` so that it goes to path `/hype/service-area/1` if the clicked service area id is 1:
 
 **src/components/ServiceAreaList.tsx**
 
@@ -10,13 +12,13 @@ Change `onClick` callback handler from `CommonDataTable` of `ServiceAreaList` so
  import { ServiceArea } from "../generated/types/server";
  import { CommonDataTable } from "./CommonDataTable";
 +import { useNavigate } from "react-router-dom";
- 
+
  const TableColumnHeaders = ["Name", "ID", "Country"];
- 
+
      ...
      AllServiceAreasQuery
    );
- 
+
 +  const navigate = useNavigate();
 +
    return (
@@ -28,13 +30,11 @@ Change `onClick` callback handler from `CommonDataTable` of `ServiceAreaList` so
        cellsForRow={(serviceArea) => ({
 ```
 
-We need to add a route and a page component for handling this new `/hype/service-area/:id` path.
+We need to add a route and a page component for handling this new `/hype/service-area/:id` path. Let's change `HypePage` similarly to `PageLayout` as a nested route structure so that we have the same layout for every page under the `/hype` path.
 
-Let's change `HypePage` similarly to `PageLayout` as a nested route structure. So that we have the same layout for every page under `/hype` path.
+We will also create a new page `ServiceAreasPage` to be the index page of `/hype`, moving the table components from `HypePage` into the `ServiceAreas` page.
 
-And we will create a new page `ServiceAreasPage` to be the index page of `/hype`, moving the table components from `HypePage` into `ServiceAreas` page.
-
-`:id` portion in `/hype/service-areas/:id` means that it is a path parameter. We will be able to get this value in `ServiceAreaDetail` page component later.
+The `:id` portion in `/hype/service-areas/:id` means that it is a path parameter (we will be able to get the value in `ServiceAreaDetail` page component later):
 
 **src/App.tsx**
 
@@ -45,9 +45,9 @@ And we will create a new page `ServiceAreasPage` to be the index page of `/hype`
  import HypePage from "./pages/HypePage";
 +import ServiceAreasPage from "./pages/ServiceAreasPage";
 +import ServiceAreaDetailPage from "./pages/ServiceAreaDetailPage";
- 
+
  const queryClient = new QueryClient();
- 
+
            ...
            <Route path="/" element={<PageLayout />}>
              <Route index element={<HomePage />} />
@@ -66,11 +66,11 @@ And we will create a new page `ServiceAreasPage` to be the index page of `/hype`
 
 ```
 
-And create `HypePage` page component.
+Next, we create the `HypePage` page component.
 
-We replace table components with `<Outlet />` so that children of `/hype` path can inject their own elements into it.
+We'll replace the table components with `<Outlet />` so that children of the `/hype` path can inject their own elements.
 
-We can also turn `HypePage` title into a link so clicking it would go to `/hype`. Similar to what we did with app header title, clicking it takes user to `/`.
+We can also turn `HypePage` title into a link so that clicking it would go to `/hype`. Similar to what we did with at the App header title, clicking it takes a user to `/`.
 
 **src/pages/HypePage.tsx**
 
@@ -82,7 +82,7 @@ We can also turn `HypePage` title into a link so clicking it would go to `/hype`
 -import { ErrorBoundary } from "react-error-boundary";
 -import ServiceAreaList from "../components/ServiceAreaList";
 +import { Link, Outlet } from "react-router-dom";
- 
+
  export default function HypePage() {
    return (
      <>
@@ -117,9 +117,9 @@ We can also turn `HypePage` title into a link so clicking it would go to `/hype`
  }
 ```
 
-Then change create `ServiceAreasPage` page component.
+Then, create the `ServiceAreasPage` page component.
 
-Nothing much special going here we pretty much only moved code from `HypePage` to here.
+Nothing much special going here. We pretty much only moved code from `HypePage` to here:
 
 **src/pages/ServiceAreasPage.tsx**
 
@@ -150,7 +150,7 @@ export default function ServiceAreasPage() {
 }
 ```
 
-Finally create the `ServiceAreaDetailPage` page component. So that we handle the path `/hype/service-areas/:id`.
+Finally create the `ServiceAreaDetailPage` page component so that we handle the path `/hype/service-areas/:id`:
 
 **src/pages/ServiceAreaDetailsPage.tsx**
 
@@ -171,19 +171,15 @@ export default function ServiceAreaDetailPage() {
 }
 ```
 
-We get the value of `:id` in `/hype/service-areas/:id` path using `const { id: serviceAreaId } = useParams();` hook from React Router.
-
-Then we show the id in the layout next to the title.
+We get the value of `:id` in `/hype/service-areas/:id` path using `const { id: serviceAreaId } = useParams();` hook from React Router. Then we show the ID in the layout next to the title.
 
 Now you can go to `localhost:8000/hype` to test our changes.
 
 ![service area detail](assets/service-area-detail.gif)
 
-Let's show the details of the service area in `ServiceAreaDetailPage` as well.
+Let's show the details of the service area in `ServiceAreaDetailPage` as well. We will see how we can add parameters to GraphQL queries while doing this.
 
-We will see how we can add parameters to graphQL queries while doing this.
-
-First let's make a key-value pair display component that we can re-use. Let's call it `TitleValueRow`
+First let's make a key-value pair display component that we can re-use. Let's call it `TitleValueRow`:
 
 **src/components/TitleValueRow.tsx**
 
@@ -215,7 +211,7 @@ export default function TitleValueRow({
 }
 ```
 
-Then make a `ServiceAreaDetails` component. In which we will fetch service area data from graphQL api with service area's id.
+Then make a `ServiceAreaDetails` component. We will fetch service area data from GraphQL API with service area's id:
 
 **src/components/ServiceAreaDetails.tsx**
 
@@ -256,13 +252,11 @@ const ServiceAreaDetailsQuery = gql`
 `;
 ```
 
-And finally use it in the page component `ServiceAreaDetailPage`.
+And finally, use the `ServiceAreaDetails` component in the `ServiceAreaDetailPage` page component `ServiceAreaDetailPage`.
 
-I won't make skeleton component for the loading state in this case, we have seen how to make those before in `ServiceAreasPage`.
+We won't make a skeleton component for the loading state in this case, as we have seen how to make those before in `ServiceAreasPage`.
 
-Similar to other pages before, we wrap the `ServiceAreaDetails` component with `ErrorBoundary` and `Suspense`
-
-Only difference is that `ServiceAreaDetails` takes the service area `id` as prop.
+Similar to other pages before, we wrap the `ServiceAreaDetails` component with `ErrorBoundary` and `Suspense`, only difference is that `ServiceAreaDetails` takes the service area `id` as prop:
 
 **src/components/ServiceAreaDetailPage.tsx**
 
@@ -274,7 +268,7 @@ Only difference is that `ServiceAreaDetails` takes the service area `id` as prop
 +import { Suspense } from "react";
 +import { ErrorBoundary } from "react-error-boundary";
 +import Alert from "@mui/material/Alert";
- 
+
  export default function ServiceAreaDetailPage() {
    const { id: serviceAreaId } = useParams();
        ...
