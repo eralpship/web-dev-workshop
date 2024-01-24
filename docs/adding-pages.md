@@ -1,15 +1,14 @@
 # Adding Pages
 
-Websites usually have more than one page. We could learn how we can add more pages as well.
+Websites usually have more than one page. Let's learn how can we add more pages to our app.
 
 We'll use [react-router](https://reactrouter.com/)'s BrowserRouter implementation.
 
-React-Router is an utility for us to define our page routes and their react components. When user goes to the defined path, renders the corresponding component.
+React-Router is an utility for us to define our page routes and their React components. When a user goes to a defined path, React-Router renders the corresponding component.
 
 ## Implementing React-Router
 
-Let's remove `PageLayout` and move `CityWeatherContainer`s into a new file. 
-And implement `react-router`'s `BrowserRouter` and `Routes`.
+Let's remove `PageLayout` and move `CityWeatherContainer`s into a new file and implement `react-router`'s `BrowserRouter` and `Routes`:
 
 **src/App.tsx**
 
@@ -24,9 +23,9 @@ And implement `react-router`'s `BrowserRouter` and `Routes`.
 + import HomePage from "./pages/HomePage";
 + import WeatherPage from "./pages/WeatherPage";
 + import NotFoundPage from "./pages/NotFoundPage";
- 
+
   const queryClient = new QueryClient();
- 
+
   function App() {
     return (
       <QueryClientProvider client={queryClient}>
@@ -62,13 +61,11 @@ And implement `react-router`'s `BrowserRouter` and `Routes`.
   }
 ```
 
-We defined 3 routes `HomePage`, `WeatherPage` and `NotFoundPage`.
+We have now defined 3 routes `HomePage`, `WeatherPage` and `NotFoundPage`. We'll implement their components passed as element props.
 
-Let's start implementing their components passed as element props
+Move the weather components we removed from `App.tsx` into a new file `src/pages/WeatherPage.tsx`:
 
-Move the weather components we removed from `App.tsx` into a new file `src/pages/WeatherPage.tsx`.
-
-***src/pages/WeatherPage.tsx**
+**\*src/pages/WeatherPage.tsx**
 
 ```tsx
 import CityWeatherContainer from "../components/CityWeatherContainer";
@@ -101,7 +98,7 @@ export default function WeatherPage() {
 }
 ```
 
-Next create the home page component
+Next, create the home page component:
 
 **src/pages/HomePage.tsx**
 
@@ -118,7 +115,7 @@ export default function HomePage() {
 }
 ```
 
-Finally the `NotFoundPage`
+and the `NotFoundPage` component:
 
 **src/pages/NotFoundPage.tsx**
 
@@ -135,13 +132,11 @@ export default function NotFoundPage() {
 }
 ```
 
-Now when you go to `localhost:8000` you should see a page has the title "Home Page" and has a link to weather page.
+When you go to `localhost:8000` you should see a page with the title "Home Page" and a link to a weather page. Clicking it will take you to the `/weather` page.
 
-Clicking it will take you to `/weather` page.
+You can click back in your browser to go back to the root path `/` , our Home page.
 
-You can click back in your browser to go back to `/` the Home page.
-
-If you go to any other path than `/` or `/weather`, `NotFoundPage` will be rendered.
+If you go to any other path than `/` or `/weather`, the `NotFoundPage` will be rendered.
 
 ![router init](assets/router-init.gif)
 
@@ -149,7 +144,7 @@ If you go to any other path than `/` or `/weather`, `NotFoundPage` will be rende
 
 When we modified the `App.tsx` to implement `BrowserRouter` and `Routes`, we removed the `PageLayout` wrapper. Let's bring it back.
 
-First we need to change `PageLayout` so that it can work as root route for our nested routes. Which means that it will wrap all the page routes, display it's `PageHeader` above all pages.
+First we need to change the `PageLayout` so that it can work as a root route for our nested routes. This means it will wrap all the page routes and display it's `PageHeader` above all pages.
 
 **src/components/PageLayout.tsx**
 
@@ -159,7 +154,7 @@ First we need to change `PageLayout` so that it can work as root route for our n
   import { useMemo } from "react";
   import PageHeader from "./PageHeader";
 + import { Outlet } from "react-router-dom";
- 
+
 - type PageLayoutProps = {
 -   children: React.ReactNode;
 - };
@@ -167,7 +162,7 @@ First we need to change `PageLayout` so that it can work as root route for our n
 - export default function PageLayout({ children }: PageLayoutProps) {
 + export default function PageLayout() {
     const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
- 
+
     const theme = useMemo(
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -179,15 +174,13 @@ First we need to change `PageLayout` so that it can work as root route for our n
   }
 ```
 
-We won't take `children` prop anymore. So we deleted the `PageLayoutProps` altogether. In React-Router, nested route's children routes are injected into `<Outlet />` element instead. That's why we replaced `{children}` with `<Outlet />` also.
+We deleted the `PageLayoutProps` altogether since we won't take `children` props anymore. In React-Router, nested route's children routes are injected into `<Outlet />` element's instead. That's why we replaced `{children}` with `<Outlet />`.
 
 Next is to implement nested routes in `App.tsx`
 
-We will handle `/` as the root path and render `PageLayout` for it.
+We will handle `/` as the root path and render a `PageLayout` for it. All the existing `Route`s go under the `/` route definition as children.
 
-All the existing `Route`s go under `/` route definition as children.
-
-Then we remove `/` from their paths because that is already being handled by the parent router. So,
+We then remove `/` from the paths because it is already being handled by the parent router like so;
 
 - `/` becomes `index`
 - `/weather` becomes `weather`
@@ -200,9 +193,9 @@ Then we remove `/` from their paths because that is already being handled by the
   import WeatherPage from "./pages/WeatherPage";
   import NotFoundPage from "./pages/NotFoundPage";
 + import PageLayout from "./components/PageLayout";
- 
+
   const queryClient = new QueryClient();
- 
+
   function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
@@ -220,13 +213,13 @@ Then we remove `/` from their paths because that is already being handled by the
       </QueryClientProvider>
 ```
 
-Now if you check `localhost:8000` you'll see that we got `PageLayout`s Header back. Should look like this;
+Now if you check `localhost:8000` you'll see that we got `PageLayout`s Header back.
 
 ![nested layout init](assets/nested-layout-init.gif)
 
 ## Common page styles
 
-Let's add some common page elements and styles to wrapping `PageLayout` component
+Let's add some common page elements and styles to the`PageLayout` component:
 
 **src/components/PageLayout.tsx**
 
@@ -237,9 +230,9 @@ Let's add some common page elements and styles to wrapping `PageLayout` componen
  import { createTheme } from "@mui/material/styles";
  import useMediaQuery from "@mui/material/useMediaQuery";
  import { useMemo } from "react";
-     
+
     ...
-     
+
      <ThemeProvider theme={theme}>
        <CssBaseline />
        <PageHeader />
@@ -273,11 +266,11 @@ Let's add some common page elements and styles to wrapping `PageLayout` componen
  }
 ```
 
-Here we made it so that page content is centered by the outer `Box` which has `100%` of the width of the window.
+Here we made it so that the page content is centered by the outer `Box` which has `100%` of the width of the window.
 
-Then we created another containing `Box` that has a certain with depending on how wide the page is. In smaller sized `xs` it will use at most width as it can, at `md` and beyond it won't exceed `750` pixels. So that content appears at the center, and not span far left and right edges of the page.
+Then, we created another containing `Box` that has a certain width depending on the size of the page. In smaller sized screens, `xs` will use the maxmimum width it can and at `md` and beyond it won't exceed `750` pixels. This will allow content to appear at the center and not span far left or right at the edges of the page.
 
-In `PageHeader` we can turn title text into a link so that it goes to home page '/'.
+In `PageHeader` we can turn the title text into a link so that it directs to our home page '/':
 
 **src/components/PageHeader.tsx**
 
@@ -286,7 +279,7 @@ In `PageHeader` we can turn title text into a link so that it goes to home page 
  import Toolbar from "@mui/material/Toolbar";
  import Typography from "@mui/material/Typography";
 +import { Link } from "react-router-dom";
- 
+
  export default function PageHeader() {
    return (
      <AppBar position="static">
@@ -307,7 +300,7 @@ In `PageHeader` we can turn title text into a link so that it goes to home page 
        </Toolbar>
 ```
 
-Let's update the pages with MUI components
+Let's update the pages with MUI components:
 
 **src/components/WeatherPage.tsx**
 
@@ -315,7 +308,7 @@ Let's update the pages with MUI components
  import CityWeatherContainer from "../components/CityWeatherContainer";
  import Box from "@mui/material/Box";
 +import Typography from "@mui/material/Typography";
- 
+
  export default function WeatherPage() {
    return (
 -    <div>
@@ -345,9 +338,11 @@ Let's update the pages with MUI components
  }
 ```
 
-- We changed title into a MUI Typography title.
-- Removed the padding because `PageLayout` now sets that.
-- We made `WeatherPage`s wrapper take `100%` of the width because constrains are applied by `PageLayout` anyways.
+Here we;
+
+- changed the title into a MUI Typography title
+- removed the padding because `PageLayout` now sets it
+- made `WeatherPage`s wrapper take `100%` of the width because constrains are applied by the `PageLayout` anyways
 
 **src/components/HomePage**
 
@@ -355,7 +350,7 @@ Let's update the pages with MUI components
 +import Button from "@mui/material/Button";
 +import Typography from "@mui/material/Typography";
  import { Link } from "react-router-dom";
- 
+
  export default function HomePage() {
    return (
 -    <div>
@@ -379,10 +374,12 @@ Let's update the pages with MUI components
  }
 ```
 
-- We changed title to MUI Typography component
-- Wrapped `Link` so that it is rendered as a MUI `Button` component.
+Here, we;
 
-Finally similarly the `NotFoundPage`
+- again, changed the title to MUI Typography component
+- wrapped `Link` so that it is rendered as a MUI `Button` component
+
+Finally similarly in the `NotFoundPage` we do the these changes:
 
 **src/components/NotFoundPage.tsx**
 
@@ -390,7 +387,7 @@ Finally similarly the `NotFoundPage`
  import { Link } from "react-router-dom";
 +import Typography from "@mui/material/Typography";
 +import Button from "@mui/material/Button";
- 
+
  export default function NotFoundPage() {
    return (
 -    <div>
@@ -419,7 +416,7 @@ Now when you try at `localhost:8000` pages should look like these.
 
 Let's implement a navigation menu inside the `PageHeader`.
 
-We can easily add this by inserting buttons into the `ToolBar` of the `PageHeader`.
+We can easily add this by inserting buttons into the `ToolBar` of the `PageHeader`:
 
 **src/components/PageHeader.tsx**
 
@@ -430,7 +427,7 @@ We can easily add this by inserting buttons into the `ToolBar` of the `PageHeade
 +import Box from "@mui/material/Box";
 +import Button from "@mui/material/Button";
  import { Link } from "react-router-dom";
- 
+
 +const menuItems: { title: string; path: string }[] = [
 +  { title: "Home", path: "/" },
 +  { title: "Weather", path: "/weather" },
@@ -454,8 +451,8 @@ We can easily add this by inserting buttons into the `ToolBar` of the `PageHeade
    );
 ```
 
-I defined the menu item `path`s and `title`s in an array above the component instead of the layout. So that it would be easy to add/remove items from the menu later. We then loop over the `menuItems` array by `map` and render each item as `Button`s.
+I defined the menu item `path`s and `title`s in an array above the component, instead of the layout, so that it would be easier to add/remove items from the menu later. We then loop over the `menuItems` array by `map` and render each item as `Button`s.
 
-It should look like this, and clicking the buttons on the top right should take user to associated pages.
+Clicking the buttons on the top right should take user to the associated pages. It should look like this.
 
 ![init appbar menu](assets/init-appbar-menu.png)

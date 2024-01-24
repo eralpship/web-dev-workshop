@@ -1,31 +1,31 @@
 # Consuming GraphQL APIs
 
-I made us a graphql server that runs inside this project so we can experiment with making an UI based on a GraphQL API. To get it 
+I made us a graphql server that runs inside this project so that we can experiment with making an UI based on a GraphQL API. To get it;
 
 - Checkout `add-graphql-server` branch
 - Exit out of `npm run dev` command in your docker shell.
 - `npm install`
 - `npm run dev`
 
-You should see more logs than before like below when you run `npm run dev`.
+You should see more logs than before, like below, when you run `npm run dev`:
 
 ```bash
-[server] 
+[server]
 [server] > webdevworkshop@0.0.0 server:dev
 [server] > nodemon --watch src/server --ext ts,json --exec "vite-node src/server/server.ts"
-[server] 
-[frontend] 
+[server]
+[frontend]
 [frontend] > webdevworkshop@0.0.0 frontend:dev
 [frontend] > vite
-[frontend] 
+[frontend]
 [server] [nodemon] 3.0.3
 [server] [nodemon] to restart at any time, enter `rs`
 [server] [nodemon] watching path(s): src/server/**/*
 [server] [nodemon] watching extensions: ts,json
 [server] [nodemon] starting `vite-node src/server/server.ts`
-[frontend] 
+[frontend]
 [frontend]   VITE v5.0.12  ready in 187 ms
-[frontend] 
+[frontend]
 [frontend]   ➜  Local:   http://localhost:8000/
 [frontend]   ➜  Network: http://172.19.0.2:8000/
 [server] Database does not exist
@@ -39,24 +39,24 @@ You should see more logs than before like below when you run `npm run dev`.
 
 ## GraphQL language editor support
 
-If you are on vscode you can install these extensions from GraphQL Foundation.
+If you are on VS Code, you can install this extension from the GraphQL Foundation.
 https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql
 
-## About our graphql server and it's database.
+## About our GraphQL server and it's database
 
-I added another node script `npm run server:dev` that gets initiated when `npm run dev`. This is our new graphql server that runs on `localhost:4000`.
+I added another node script `npm run server:dev` that gets initiated when `npm run dev` is executed. This is our new graphql server that runs on `localhost:4000`.
 
-Implementation of the server code is out of this scope, that's why I won't go much into detail about how I put it together. But its code is in this repository at `src/server`, you can look at it in your time if you are interested.
+Implementation of the server code is out of this scope, but you'll find the code in this repository at `src/server`. Have a look at it on your own time if you are interested.
 
-But some here are some points about the server so you can troubleshoot if server behaves unexpectedly.
+Here are some points about the server for troubleshooting, if the server behaves unexpectedly.
 
-- Server uses local [SQLite](https://www.sqlite.org/index.html) as database. This is a file at the root of the repository `database.sqlite`.
+- Server uses local [SQLite](https://www.sqlite.org/index.html) database. The DB is a file at the root of the repository `database.sqlite`.
 
-- When server starts it will check if `database.sqlite` is present. Otherwise it will recreate it. If data goes stale. Delete it, then re run `npm run dev` to get it recreated.
+- When the server starts it will check if `database.sqlite` is present. Otherwise it will recreate it. If the data goes stale, delete it and re run `npm run dev` to get it recreated.
 
-- The tables and records in the database come from `src/server/server.seed.ts` file. You can see what's inserted into it from that file.
+- The tables and records in the database come from `src/server/server.seed.ts` file. You can see what's inserted into the DB from the file.
 
-- Also you can browse the database tables by using any sqlite browser. If you don't have one already set up you can use [alpha.sqliteviewer.app](https://alpha.sqliteviewer.app). When you upload the `database.sqlite` file you'll see this. Click on the table names to see what's in them. You will need to re-upload when data changes.
+- You can also browse the database tables by using any sqlite browser. If you don't have one set up you can use [alpha.sqliteviewer.app](https://alpha.sqliteviewer.app). When you upload the `database.sqlite` file you'll see this. Click on the table names to see what's in them. You will need to re-upload when data changes.
 
 ![sqliteviewer app](assets/sqliteviewer-app.png)
 
@@ -68,11 +68,17 @@ Go to `http://localhost:4000` to view it.
 
 ![graphql sandbox](assets/graphql-sandbox.png)
 
-We can write queries and mutations here which would run on our server. On the left side you write the queries. Right side you view the response. If you write multiple queries click on the query to activate one you want. Then click the play/run button.
+We can write queries and mutations here which will run on our server. Queries are written on the left side and the right side is to view the response. If you write multiple queries, click on the query to activate the one you want. Then click the play/run button.
 
-## Implementing the query client to our web app.
+## Implementing the query client to our web app
+
+Install the Apollo GraphQL client library:
 
 `npm install @apollo/client graphql`
+
+and make the following changes to `src/main.tsx`:
+
+**src/main.tsx**
 
 ```diff
  import ReactDOM from "react-dom/client";
@@ -102,16 +108,15 @@ We can write queries and mutations here which would run on our server. On the le
 +});
 +
 +console.log(queryResult.data);
- 
+
  ReactDOM.createRoot(document.getElementById("root")!).render(
    <React.StrictMode>
 ```
 
-`localhost:8000`
+Next, go to
+`localhost:8000` and open the developer console to see the query result.
 
 ![gql result in console](assets/gql-query-result-in-console.png)
-
-Note about top level await.
 
 We ran this query and received its response. You can run the same query in `localhost:4000` as well.
 
@@ -124,12 +129,13 @@ query GetServiceAreas {
 }
 ```
 
-Let's remove the hardcoded query in `main.tsx`, and see how we can query from React components.
+Let's remove the hardcoded query in `main.tsx`, and see how we can query from React components. We will remove;
 
-- We will remove the `gql` import.
-- The query
-- And the console.log
-- Wrap the `App` component with `ApolloClient` so that we can use the Apollo Client in react components.
+- the `gql` import.
+- the query
+- and the console.log
+
+Wrap the `App` component with `ApolloClient` so that we can use the Apollo Client in react components:
 
 **src/main.tsx**
 
@@ -144,12 +150,12 @@ Let's remove the hardcoded query in `main.tsx`, and see how we can query from Re
 -  gql,
 -} from "@apollo/client";
 +import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
- 
+
  const graphqlClient = new ApolloClient({
    uri: "http://localhost:4000",
    cache: new InMemoryCache(),
  });
- 
+
 -const queryResult = await graphqlClient.query({
 -  query: gql`
 -    query GetServiceAreas {
@@ -175,7 +181,7 @@ Let's remove the hardcoded query in `main.tsx`, and see how we can query from Re
  );
 ```
 
-Next create new page file `HypePage` at `src/pages/HypePage.tsx`.
+Next create a new page file `HypePage` at `src/pages/HypePage.tsx`:
 
 **src/pages/HypePage.tsx**
 
@@ -247,20 +253,19 @@ const AllServiceAreasQuery = gql`
     }
   }
 `;
-
 ```
 
-Several things happening here;
+Several things happened here;
 
-- We imported `useSuspenseQuery as useApolloSuspenseQuery` from `"@apollo/client"`. Normally we don't need to do this. This is to avoid confusion between other React-Query's own `useSuspenseQuery`. Apollo Client comes with a very similar hook with React-Query. Since they have the same name, to avoid confusion I decided to alias `useSuspenseQuery as useApolloSuspenseQuery`. Normally if you would be careful to import from correct package, you don't need to worry about this.
+- We imported `useSuspenseQuery as useApolloSuspenseQuery` from `"@apollo/client"`. Normally we don't need to do this. This is to avoid confusion between React-Query's own `useSuspenseQuery`. Apollo Client comes with a very similar hook with React-Query and since they have the same name, to avoid confusion, I decided to alias `useSuspenseQuery as useApolloSuspenseQuery`.
 
-- We created another component in the same file named `ServiceAreaList` and implemented the `useApolloSuspenseQuery` in it. Main reason is that `Suspense` and `ErrorBoundary` needs to be handled by the parent of the component which produces either errors or loading state.
+- We created another component in the same file named `ServiceAreaList` and implemented the `useApolloSuspenseQuery` in it. Main reason is that `Suspense` and `ErrorBoundary` need to be handled by the parent of the component which produces either errors or a loading state.
 
-- Apollo's `useSuspenseQuery` has the same behavior with React-Query's so that we implemented it the same way as our weather api calls from before. `ErrorBoundary` catches the thrown error and renders an `Alert` component from Material UI (MUI). While query is loading `Suspense` just shows "Loading..." test for now.
+- Apollo's `useSuspenseQuery` has the same behavior with React-Query so we implemented it the same way as our weather API calls from before. `ErrorBoundary` catches a thrown error and renders an `Alert` component from Material UI (MUI). While query is loading `Suspense` "Loading..." is shown as test for now.
 
-- And finally we defined the query `AllServiceAreasQuery` which is the query from before we did at `main.tsx`.
+- And finally we defined the query `AllServiceAreasQuery` which is the query we defined at `main.tsx`.
 
-- When we use Apollo Client with typescript, we can call queries with the types we are expecting, then it will return values with correct types. See our query hook implementation;
+When we use Apollo Client with Typescript, we can call queries with specified types and Apollo Client will return values with the correct types. See our query hook implementation:
 
 ```ts
 const {
@@ -270,13 +275,13 @@ const {
 );
 ```
 
-This part here is the generic type definition `<{ serviceAreas: ServiceArea[] }>`. `ServiceArea` type comes from `import { ServiceArea } from "../generated/types/server";`. 
+This part is the generic type definition `<{ serviceAreas: ServiceArea[] }>`. `ServiceArea` type comes from `import { ServiceArea } from "../generated/types/server";`.
 
-I generated these types from server graphql schema file `src/server/schema.graphql`. See Apollo's own documentation how this is done if you are interested, I won't go into detail about server side stuff as it is beyond our scope for this workshop.
+I generated these types from the server GraphQL schema file `src/server/schema.graphql`. The logic of the generation goes beyond our scope, but do read more about it if you are interested.
 
-What matters is that we use this to use the same types in our frontend code as our server does.
+We do this to use the same types in our frontend code as our server side.
 
-Then let's add `HypePage` to `App.tsx` as a route at `/hype`.
+Let's then add `HypePage` to `App.tsx` as a route at `/hype`:
 
 **src/App.tsx**
 
@@ -285,9 +290,9 @@ Then let's add `HypePage` to `App.tsx` as a route at `/hype`.
  import NotFoundPage from "./pages/NotFoundPage";
  import PageLayout from "./components/PageLayout";
 +import HypePage from "./pages/HypePage";
- 
+
  const queryClient = new QueryClient();
- 
+
           ...
            <Route path="/" element={<PageLayout />}>
              <Route index element={<HomePage />} />
@@ -298,12 +303,12 @@ Then let's add `HypePage` to `App.tsx` as a route at `/hype`.
          </Routes>
 ```
 
-And add a link from `HomePage.tsx` to `/hype` route.
+Add a link from `HomePage.tsx` to `/hype` route:
 
 **src/pages/HomePage.tsx**
 
 ```diff
-   ... 
+   ...
        >
          Weather
        </Button>
@@ -315,17 +320,15 @@ And add a link from `HomePage.tsx` to `/hype` route.
  }
 ```
 
-And then finally let's add the link to page header at `PageHeader.tsx` so we have a link to `/hype` from header as well.
+Next, we will add a link to the page header at `PageHeader.tsx` so we have a link to `/hype` from the header as well.
 
-As we are here in `PageHeader.tsx`. Let's also improve the logic so we keep track of which page are we at and show it as `disabled` which makes it look like grayed out.
+As we are here in `PageHeader.tsx` let's also keep track of which page we sre at by showing the selected page as `disabled`, a visualization to make it appear grayed out. For example, when we are at the `/weather` page the `Weather` button will be disabled and when we go to another page `Weather` button gets re-enabled.
 
-Which means if when we are at `/weather` page `Weather` button will be disabled. When we go to another page `Weather` button gets re-enabled.
+We will implement this using the `useLocation` hook and a `matchRoutes` utility from React-Router. By comparing the current browser URL location and finding the route it matches with, we can disable the matching navigation button.
 
-We will implement this using `useLocation` hook and `matchRoutes` utility from React-Router. By comparing the current browser url location's and find which route it matched with, if it is the same with any of the navigation buttons we are showing, we will disable it.
+Since we have 3 buttons now, the header title is squished a bit, so let's shorten the title text. Ideally we could swap the navigation buttons to a menu that reveals when clicked on an icon.
 
-Since we have 3 buttons now, header title will be squished a little bit, so for now let's shorten the title text. Ideally we could swap the navigation buttons to a menu that reveals when clicked on an icon, only in narrow sizes.
-
-Also I missed to add color style earlier, this introduced an issue which made buttons to seem disappeared in light mode. We will add this missing `inherit` color to the `Buttons`, so their color change along with the colorscheme.
+Also I missed to add a color style earlier, which introduced an issue which made buttons to seem disappearing in light mode. Let's fix that! We will add this missing `inherit` color to the `Buttons` so that their color changes along with the colorscheme.
 
 **src/components/PageHeader.tsx**
 
@@ -335,13 +338,13 @@ Also I missed to add color style earlier, this introduced an issue which made bu
  import Button from "@mui/material/Button";
 -import { Link } from "react-router-dom";
 +import { Link, matchRoutes, useLocation } from "react-router-dom";
- 
+
  const menuItems: { title: string; path: string }[] = [
    { title: "Home", path: "/" },
    { title: "Weather", path: "/weather" },
 +  { title: "Hype", path: "/hype" },
  ];
- 
+
  export default function PageHeader() {
 +  const location = useLocation();
 +  const matchingRoutes = matchRoutes(menuItems, location);
@@ -372,11 +375,11 @@ Also I missed to add color style earlier, this introduced an issue which made bu
            ))}
 ```
 
-Now if you go to `localhost:8000` you should be able to go to `/hype` page, see menu buttons change according to active page, and it should look like this;
+Now if you go to `localhost:8000` you should be able to go to `/hype` page and the see menu buttons change according to the active page, like so;
 
 ![add hype page](assets/add-hype-page.gif)
 
-Let's see what happens if we make an bad request that graphql doesn't accept. For example change the query and add a value which ServiceArea doesn't have.
+Let's see what happens if we make a bad request that GraphQL doesn't accept. For example, change the query and add a value that ServiceArea doesn't have.
 
 **src/pages/HypePage.tsx**
 
@@ -393,14 +396,14 @@ Let's see what happens if we make an bad request that graphql doesn't accept. Fo
  `;
 ```
 
-Then go to `localhost:8000/hype` and click the menu button or the button at homepage to go to `/hype` page.
+Then go back to `localhost:8000/hype` and click the menu button or the button at homepage to go to `/hype` page.
 
-You should see that the error was handled by the `ErrorBoundary`.
+You should see that an error was handled by the `ErrorBoundary`.
 
 ![hype page error](assets/hype-page-query-error.png)
 
-ServiceAreas don't have pizza :(
+ServiceAreas doesn't have pizza :(
 
-If you check your browser network console and find the `400` error code `localhost:4000` request. You can see the error that is sent from our server. This has more info about why our request was rejected.
+When you check your browsers network console and locate the `400` error code at the `localhost:4000` request, you can see the error in more detail from the request that was rejected.
 
 ![query error network](assets/query-error-network.png)
